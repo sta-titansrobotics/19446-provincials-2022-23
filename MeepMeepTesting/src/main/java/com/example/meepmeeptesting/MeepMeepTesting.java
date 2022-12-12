@@ -34,9 +34,47 @@ public class MeepMeepTesting {
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(-35, -61.8, Math.toRadians(90)))
 
-                                .lineToSplineHeading(new Pose2d(-11.5, -61.8, Math.toRadians(90)))
-                                .lineToSplineHeading(new Pose2d(-12.2, -11.5, Math.toRadians(90)))
-                                .lineToSplineHeading(new Pose2d(-18, -5, Math.toRadians(135)))
+                                // preload
+                                .lineToSplineHeading(new Pose2d(-35, -5, Math.toRadians(90)))
+                                .lineToSplineHeading(new Pose2d(-35, -11.5, Math.toRadians(90)))
+                                .lineToSplineHeading(new Pose2d(-29.5, -6.5, Math.toRadians(47)))
+                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
+
+
+
+                                // cycle 1
+                                .lineToSplineHeading(new Pose2d(-60, -11.5, Math.toRadians(180)))
+                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
+                                .lineToSplineHeading(new Pose2d(-29.5, -6.5, Math.toRadians(47)))
+                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
+
+                                // cycle 2
+                                .lineToSplineHeading(new Pose2d(-60, -11.5, Math.toRadians(180)))
+                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
+                                .lineToSplineHeading(new Pose2d(-29.5, -6.5, Math.toRadians(47)))
+                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
+
+                                // cycle 3
+                                .lineToSplineHeading(new Pose2d(-60, -11.5, Math.toRadians(180)))
+                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
+                                .lineToSplineHeading(new Pose2d(-29.5, -6.5, Math.toRadians(47)))
+                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
+
+                                // cycle 4
+                                .lineToSplineHeading(new Pose2d(-60, -11.5, Math.toRadians(180)))
+                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
+                                .lineToSplineHeading(new Pose2d(-29.5, -6.5, Math.toRadians(47)))
+                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
+
+                                // cycle 4
+                                .lineToSplineHeading(new Pose2d(-60, -11.5, Math.toRadians(180)))
+                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
+                                .lineToSplineHeading(new Pose2d(-29.5, -6.5, Math.toRadians(47)))
+
+                                // park
+                                .lineToSplineHeading(finalVectorPark)
+
+
 
                                 .build()
                 );
