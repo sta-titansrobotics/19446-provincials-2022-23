@@ -125,7 +125,7 @@ public class Left extends LinearOpMode
                 // preload
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.67))
                 .UNSTABLE_addTemporalMarkerOffset(1, () -> verticalServo.setPosition(0))
-                .UNSTABLE_addTemporalMarkerOffset(2, () -> moveLift(0.8, 0, 500))
+                .UNSTABLE_addTemporalMarkerOffset(2, () -> moveLift(0.8, 500))
                 .waitSeconds(3) // change to 1
 
                 .forward(56.8)
@@ -134,7 +134,7 @@ public class Left extends LinearOpMode
                 .waitSeconds(1)
                 .turn(Math.toRadians(-45))
 
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> moveLift(0.8, 0.1,3150))
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> moveLift(0.8, 3150))
                 .waitSeconds(2) // change to 0.5
                 .forward(7.85)
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.5))
@@ -271,7 +271,7 @@ public class Left extends LinearOpMode
 
     }
 
-    public void moveLift(double power, double endPower, int ticks) {
+    public void moveLift(double power, int ticks) {
 
         motorPower(0);
 
@@ -283,16 +283,6 @@ public class Left extends LinearOpMode
 
         motorPower(power);
 
-        while(leftLift.isBusy()) {
-            // wait for lift to reach desired height
-        }
-
-        motorPower(0);
-
-        leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        motorPower(endPower);
     }
 
     /**
