@@ -134,7 +134,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
         setLocalizer(new TwoWheelTrackingLocalizer(hardwareMap, this));
 
-        trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID);
+        trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID, batteryVoltageSensor);
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
