@@ -126,7 +126,7 @@ public class SampleTankDrive extends TankDrive {
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
 
-        trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID);
+        trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID, batteryVoltageSensor);
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
