@@ -22,6 +22,7 @@
 package org.firstinspires.ftc.teamcode.auton;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -104,10 +105,15 @@ public class Left extends LinearOpMode
         leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        // initialize position
+        leftLift.setTargetPosition(0);
+        rightLift.setTargetPosition(0);
+
         leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         Servo servoScissor = hardwareMap.get(Servo.class, "servoScissor");
         Servo verticalServo = hardwareMap.get(Servo.class, "servoScissorLift");
@@ -117,10 +123,11 @@ public class Left extends LinearOpMode
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        Pose2d startPose = new Pose2d(-35.5, -62.3, Math.toRadians(90));
+        Pose2d startPose = new Pose2d(-35, -61.8, Math.toRadians(90));
 
         drive.setPoseEstimate(startPose);
 
+        /*
         TrajectorySequence common = drive.trajectorySequenceBuilder(startPose)
                 // preload
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.67))
@@ -144,6 +151,32 @@ public class Left extends LinearOpMode
 
                 .build();
 
+         */
+
+        TrajectorySequence common = drive.trajectorySequenceBuilder(startPose)
+                // preload
+                .splineTo(new Vector2d(-35, -20), Math.toRadians(90))
+                .splineTo(new Vector2d(-27, -8), Math.toRadians(65))
+                .waitSeconds(0.5)
+
+                // cycle 1
+                .setReversed(true)
+                .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
+                .splineTo(new Vector2d(-60, -11.5), Math.toRadians(180))
+                .setReversed(false)
+                .waitSeconds(0.5)
+
+                .splineTo(new Vector2d(-40, -11.5), Math.toRadians(0))
+                .splineTo(new Vector2d(-28, -8.5), Math.toRadians(60))
+                .waitSeconds(0.5)
+
+                // parking
+                .setReversed(true)
+                .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
+                .setReversed(false)
+
+                .build();
+
 
         TrajectorySequence leftTraj = drive.trajectorySequenceBuilder(common.end())
 
@@ -159,7 +192,7 @@ public class Left extends LinearOpMode
         TrajectorySequence rightTraj = drive.trajectorySequenceBuilder(common.end())
 
                 // park
-                .lineToSplineHeading(new Pose2d(-12, -12, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(-11.5, -12, Math.toRadians(0)))
                 .build();
 
         /*
@@ -273,34 +306,12 @@ public class Left extends LinearOpMode
 
     public void moveLift(double power, int ticks) {
 
-        motorPower(0);
-
         leftLift.setTargetPosition(ticks);
         rightLift.setTargetPosition(ticks);
 
-        leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        motorPower(power);
-
-    }
-
-    /**
-     * Set power of both lift motors
-     * @param power setPower
-     */
-    public void motorPower(double power) {
         leftLift.setPower(power);
         rightLift.setPower(power);
-    }
 
-    /**
-     * Change mode of cascading lift
-     * @param mode setMode
-     */
-    public void setLiftMode(DcMotor.RunMode mode) {
-        leftLift.setMode(mode);
-        rightLift.setMode(mode);
     }
 
     void tagToTelemetry(AprilTagDetection detection)
