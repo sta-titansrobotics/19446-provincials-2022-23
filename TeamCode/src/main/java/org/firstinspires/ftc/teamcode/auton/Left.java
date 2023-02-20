@@ -47,6 +47,17 @@ public class Left extends LinearOpMode
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
+    public enum LiftState {
+        LIFT_START,
+        LIFT_MOVE,
+    }
+
+    int targetPos = 0;
+    double lift_power = 0;
+    boolean start = false;
+
+    LiftState liftState = LiftState.LIFT_START;
+
     static final double FEET_PER_METER = 3.28084;
 
     // Lens intrinsics
@@ -293,6 +304,33 @@ public class Left extends LinearOpMode
         }
 
         while (opModeIsActive()) {
+
+            switch (liftState) {
+                case LIFT_START:
+                    if (start) {
+                        leftLift.setTargetPosition(targetPos);
+                        rightLift.setTargetPosition(targetPos);
+
+                        leftLift.setPower(lift_power);
+                        rightLift.setPower(lift_power);
+
+                        liftState = LiftState.LIFT_MOVE;
+                    }
+                    break;
+                case LIFT_MOVE:
+                    if (leftLift.getCurrentPosition() < leftLift.getTargetPosition() + 10 && leftLift.getCurrentPosition() > leftLift.getTargetPosition() - 10) {
+                        leftLift.setPower(0);
+                        rightLift.setPower(0);
+
+                        start = false;
+                        liftState = LiftState.LIFT_START;
+                    }
+                    break;
+
+                default:
+                    liftState = LiftState.LIFT_START;
+            }
+
             telemetry.addData("Left Lift Power: ", leftLift.getPower());
             telemetry.addData("Right Lift Power: ", rightLift.getPower());
             telemetry.addData("Left Lift Encoder: ", leftLift.getCurrentPosition());
@@ -305,13 +343,9 @@ public class Left extends LinearOpMode
     }
 
     public void moveLift(double power, int ticks) {
-
-        leftLift.setTargetPosition(ticks);
-        rightLift.setTargetPosition(ticks);
-
-        leftLift.setPower(power);
-        rightLift.setPower(power);
-
+        targetPos = ticks;
+        lift_power = power;
+        start = true;
     }
 
     void tagToTelemetry(AprilTagDetection detection)
