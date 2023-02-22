@@ -147,7 +147,7 @@ public class RevisedTeleOp extends LinearOpMode{
 
 
             int switchVal = 0;
-            if(presetDOWN || presetUp) {
+            if(changedPreset) {
                 switchVal = currPreset;
             } else {
                 switchVal = -2;
