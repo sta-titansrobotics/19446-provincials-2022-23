@@ -123,8 +123,11 @@ public class RevisedTeleOp extends LinearOpMode{
                 liftPowerRight(rightLift, -y);
             }
 
+
+            boolean changedPreset = false;
             boolean presetUp = gamepad2.dpad_up;
             if (presetUp && !pPresetUP) {
+                changedPreset = true;
                 currPreset++;
                 if(currPreset > 3) {
                     currPreset = 0;
@@ -134,6 +137,7 @@ public class RevisedTeleOp extends LinearOpMode{
 
             boolean presetDOWN = gamepad2.dpad_up;
             if (presetDOWN && !presetDOWN) {
+                changedPreset = true;
                 currPreset--;
                 if(currPreset < 0) {
                     currPreset = 3;
