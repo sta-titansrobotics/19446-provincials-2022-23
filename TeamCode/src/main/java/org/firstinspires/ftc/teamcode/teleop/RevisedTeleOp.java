@@ -18,8 +18,9 @@ public class RevisedTeleOp extends LinearOpMode{
 
     boolean pGA2A = false;
 
+    double Plateau = 600;
 
-
+    double slowSpeed = 0.7;
     double strafeCounteract = 1.1;
 
     double scissorOpen = 0.67;
@@ -27,19 +28,19 @@ public class RevisedTeleOp extends LinearOpMode{
 
     boolean scissorToggle = false;
 
-    double LIFTMAXPOSITION = 10000000;
+    double armReturn;
+    double armStartPos;
+    boolean armModeToggle = false;
+    boolean armMoveUp = false;
+
+    double MAXPOSITION = 10000000;
 
     double GROUNDJUNC = 0, LOWJUNC = 100, MIDJUNC = 500, HIGHJUNC = 1000;
 
-    boolean pPresetUP = false;
-    int liftCurrPreset = 0;
 
-    double ARMMAXPOSITION = 1000000;
+    boolean pPresetUP = false, pPresetDOWN= false;
+    int currPreset = 0;
 
-    double DOWNPOS = 0, FORWARDPOS = 100, BACKPOS = 300, PEAK = 200;
-    double armPower = 0;
-
-    int armCurrPreset = 0;
 
     @Override
     public void runOpMode() {
@@ -115,162 +116,128 @@ public class RevisedTeleOp extends LinearOpMode{
 
             /* LIFT */
             // Apply power to Lift
+            //Lift(liftPowerLeft(), liftPowerRight());
             double gamepad2Y = -gamepad2.left_stick_y;
             if(gamepad2Y != 0) {
-                liftPowerLeft(leftLift, -gamepad2Y);
-                liftPowerRight(rightLift, -gamepad2Y);
+                liftPowerLeft(leftLift, -y);
+                liftPowerRight(rightLift, -y);
             }
 
-            int liftReturnTo = 0;
+            boolean presetUp = gamepad2.dpad_up;
+            if (presetUp && !pPresetUP) {
+                currPreset++;
+                if(currPreset > 3) {
+                    currPreset = 0;
+                }
+            }
+            pPresetUP = presetUp;
 
-            switch (liftCurrPreset) {
+            boolean presetDOWN = gamepad2.dpad_up;
+            if (presetDOWN && !presetDOWN) {
+                currPreset--;
+                if(currPreset < 0) {
+                    currPreset = 3;
+                }
+            }
+            pPresetDOWN = presetDOWN;
+
+
+            int switchVal = 0;
+            int prevSwitchVal = 0;
+            if(presetDOWN || presetUp) {
+                switchVal = currPreset;
+            } else {
+                switchVal = -2;
+            }
+
+            switch (switchVal) {
                 case 0:
+                    leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-                    if(gamepad2.dpad_up) {
+                    rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-                        liftReturnTo = 1;
+                    leftLift.setTargetPosition((int) GROUNDJUNC);
+                    rightLift.setTargetPosition((int) GROUNDJUNC);
 
-                        leftLift.setTargetPosition((int) GROUNDJUNC);
-                        rightLift.setTargetPosition((int) GROUNDJUNC);
+                    leftLift.setPower(1);
+                    rightLift.setPower(1);
 
-                        leftLift.setPower(1);
-                        rightLift.setPower(1);
-
-                        liftCurrPreset = -1;
+                    prevSwitchVal = switchVal;
+                    switchVal = -1;
 
 
-                    } else if (gamepad2.dpad_down){
-                        liftReturnTo = 3;
-
-                        leftLift.setTargetPosition((int) GROUNDJUNC);
-                        rightLift.setTargetPosition((int) GROUNDJUNC);
-
-                        leftLift.setPower(1);
-                        rightLift.setPower(1);
-
-                        liftCurrPreset = -1;
-                    }
                     break;
                 case 1:
 
-                    if(gamepad2.dpad_up) {
+                    leftLift.setTargetPosition((int) LOWJUNC);
+                    rightLift.setTargetPosition((int) LOWJUNC);
 
-                        liftReturnTo = 2;
+                    leftLift.setPower(1);
+                    rightLift.setPower(1);
 
-                        leftLift.setTargetPosition((int) LOWJUNC);
-                        rightLift.setTargetPosition((int) LOWJUNC);
-
-                        leftLift.setPower(1);
-                        rightLift.setPower(1);
-
-                        liftCurrPreset = -1;
+                    prevSwitchVal = switchVal;
+                    switchVal = -1;
 
 
-                    } else if (gamepad2.dpad_down){
-                        liftReturnTo = 0;
 
-                        leftLift.setTargetPosition((int) LOWJUNC);
-                        rightLift.setTargetPosition((int) LOWJUNC);
 
-                        leftLift.setPower(1);
-                        rightLift.setPower(1);
-
-                        liftCurrPreset = -1;
-                    }
                     break;
                 case 2:
 
-                    if(gamepad2.dpad_up) {
+                    leftLift.setTargetPosition((int) MIDJUNC);
+                    rightLift.setTargetPosition((int) MIDJUNC);
 
-                        liftReturnTo = 3;
+                    leftLift.setPower(1);
+                    rightLift.setPower(1);
 
-                        leftLift.setTargetPosition((int) MIDJUNC);
-                        rightLift.setTargetPosition((int) MIDJUNC);
-
-                        leftLift.setPower(1);
-                        rightLift.setPower(1);
-
-                        liftCurrPreset = -1;
+                    prevSwitchVal = switchVal;
+                    switchVal = -1;
 
 
-                    } else if (gamepad2.dpad_down){
-                        liftReturnTo = 1;
 
-                        leftLift.setTargetPosition((int) MIDJUNC);
-                        rightLift.setTargetPosition((int) MIDJUNC);
 
-                        leftLift.setPower(1);
-                        rightLift.setPower(1);
-
-                        liftCurrPreset = -1;
-                    }
                     break;
                 case 3:
 
-                    if(gamepad2.dpad_up) {
+                    leftLift.setTargetPosition((int) HIGHJUNC);
+                    rightLift.setTargetPosition((int) HIGHJUNC);
 
-                        liftReturnTo = 0;
+                    leftLift.setPower(1);
+                    rightLift.setPower(1);
 
-                        leftLift.setTargetPosition((int) HIGHJUNC);
-                        rightLift.setTargetPosition((int) HIGHJUNC);
-
-                        leftLift.setPower(1);
-                        rightLift.setPower(1);
-
-                        liftCurrPreset = -1;
+                    prevSwitchVal = switchVal;
+                    switchVal = -1;
 
 
-                    } else if (gamepad2.dpad_down){
-                        liftReturnTo = 2;
-
-                        leftLift.setTargetPosition((int) HIGHJUNC);
-                        rightLift.setTargetPosition((int) HIGHJUNC);
-
-                        leftLift.setPower(1);
-                        rightLift.setPower(1);
-
-                        liftCurrPreset = -1;
-                    }
                     break;
                 case -1:
                     if (leftLift.getCurrentPosition() < leftLift.getTargetPosition() + 10 && leftLift.getCurrentPosition() > leftLift.getTargetPosition() - 10) {
                         leftLift.setPower(0);
                         rightLift.setPower(0);
 
-                        liftCurrPreset = liftReturnTo;
+                        switchVal = -2;
                     }
                     break;
-
+                default:
+                    break;
 
             }
+
+
+
+
+
+
+
 
             /* ARM */
             // Apply power to Arm
-
-            if (gamepad2.right_stick_y != 0 && !Arm.isBusy()){
-                armMovement(Arm, -gamepad2.right_stick_y);
-            }
+            Arm.setPower(armPower());
 
 
-            if (gamepad2.x && !Arm.isBusy()){
-                Arm.setTargetPosition((int) DOWNPOS);
-            }
-            if (gamepad2.y && !Arm.isBusy()){
-                Arm.setTargetPosition((int) FORWARDPOS);
-            }
-            if (gamepad2.b && !Arm.isBusy()){
-                Arm.setTargetPosition((int) BACKPOS);
-            }
-
-            if (Arm.getCurrentPosition() > Arm.getTargetPosition()){
-                Arm.setPower(-1);
-            } else if (Arm.getCurrentPosition() < Arm.getCurrentPosition()){
-                Arm.setPower(1);
-            } else if (Arm.getCurrentPosition() < Arm.getCurrentPosition() + 10 && Arm.getCurrentPosition() > Arm.getCurrentPosition() - 10){
-                Arm.setPower(0);
-            }
-
-            /* SCISSOR */
+            /* SCISSOR
             // scissor intake
             boolean ga2A = gamepad2.a;
 
@@ -295,6 +262,7 @@ public class RevisedTeleOp extends LinearOpMode{
             // Apply power to Scissor
             ScissorServo.setPosition(Range.clip(scissorPos, MIN_POSITION, MAX_POSITION));
 
+            */
             /* TELEMETRY OUTPUT */
             // motor data
             telemetry.addLine("Wheel Data");
@@ -313,7 +281,7 @@ public class RevisedTeleOp extends LinearOpMode{
             // arm data
             telemetry.addLine("");
             telemetry.addLine("Arm Data:");
-            telemetry.addData("Arm Power: ", Arm.getPower());
+            telemetry.addData("Arm Power: ", armPower());
 
             // lift data
             telemetry.addLine("");
@@ -335,7 +303,7 @@ public class RevisedTeleOp extends LinearOpMode{
             lLift.setPower(setPower * 0.85);
         }
 
-        if(lLift.getCurrentPosition() < LIFTMAXPOSITION) {
+        if(lLift.getCurrentPosition() < MAXPOSITION) {
             lLift.setPower(setPower * 0.35);
         }
     }
@@ -350,24 +318,92 @@ public class RevisedTeleOp extends LinearOpMode{
             rLift.setPower(setPower * 0.85);
         }
 
-        if(rLift.getCurrentPosition() < LIFTMAXPOSITION) {
+        if(rLift.getCurrentPosition() < MAXPOSITION) {
             rLift.setPower(setPower * 0.35);
         }
     }
 
     /**
      * @author Gregory L
-     * @param armMotor Arm motor being controlled by this method.
+     * @return Power for the arm
      * calculates and returns required power to the arm.
      */
-    public void armMovement(DcMotor armMotor, double setPower){
+    public double armPower(){
 
-        if (armMotor.getCurrentPosition() > 0){
-            armMotor.setPower(setPower * 0.85);
+        DcMotor Arm = hardwareMap.get(DcMotor.class, "arm");
+
+        waitForStart();
+
+        if (armModeToggle){
+
+            if (gamepad2.right_stick_y > 0 && !armMoveUp) {
+
+                armMoveUp = true;
+
+            }
+
+            if (armMoveUp){
+
+                armStartPos = Arm.getCurrentPosition();
+                armMoveUp = false;
+            }
+
+            if (gamepad2.right_stick_y > 0){
+
+                if (armStartPos < Plateau){
+
+                    // front to back
+                    armReturn = gamepad2.right_stick_y;
+
+                } else {
+
+                    // back to front
+                    armReturn = -gamepad2.right_stick_y;
+
+                }
+
+                // back to front slow
+                if (Arm.getCurrentPosition() < Plateau && armReturn != Math.abs(armReturn)){
+                    armReturn *= slowSpeed;
+                }
+
+                // front to back slow
+                if (Arm.getCurrentPosition() > Plateau && armReturn == Math.abs(armReturn)){
+                    armReturn *= slowSpeed;
+                }
+
+            }
+
+        } else {
+
+            // slow down past top point (joystick up)
+            if (Arm.getCurrentPosition() > Plateau && gamepad2.right_stick_y > 0) {
+
+                armReturn = gamepad2.right_stick_y * slowSpeed;
+            }
+
+            // slow down past top point (joystick down)
+            else if (Arm.getCurrentPosition() < Plateau && gamepad2.right_stick_y < 0) {
+
+                armReturn = gamepad2.right_stick_y * slowSpeed;
+            }
+
+            else{
+                armReturn = gamepad2.right_stick_y;
+            }
+
         }
 
-        if (armMotor.getCurrentPosition() < ARMMAXPOSITION) {
-            armMotor.setPower(setPower * 0.35);
-        }
+
+        // return values
+        return armReturn;
+    }
+
+
+
+
+
+
+
     }
 }
