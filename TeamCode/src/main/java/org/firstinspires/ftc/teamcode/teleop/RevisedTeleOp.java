@@ -143,7 +143,6 @@ public class RevisedTeleOp extends LinearOpMode{
 
 
             int switchVal = 0;
-            int prevSwitchVal = 0;
             if(presetDOWN || presetUp) {
                 switchVal = currPreset;
             } else {
@@ -164,7 +163,6 @@ public class RevisedTeleOp extends LinearOpMode{
                     leftLift.setPower(1);
                     rightLift.setPower(1);
 
-                    prevSwitchVal = switchVal;
                     switchVal = -1;
 
 
@@ -177,7 +175,6 @@ public class RevisedTeleOp extends LinearOpMode{
                     leftLift.setPower(1);
                     rightLift.setPower(1);
 
-                    prevSwitchVal = switchVal;
                     switchVal = -1;
 
 
@@ -192,7 +189,6 @@ public class RevisedTeleOp extends LinearOpMode{
                     leftLift.setPower(1);
                     rightLift.setPower(1);
 
-                    prevSwitchVal = switchVal;
                     switchVal = -1;
 
 
@@ -207,7 +203,6 @@ public class RevisedTeleOp extends LinearOpMode{
                     leftLift.setPower(1);
                     rightLift.setPower(1);
 
-                    prevSwitchVal = switchVal;
                     switchVal = -1;
 
 
