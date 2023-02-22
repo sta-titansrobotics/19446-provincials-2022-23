@@ -43,7 +43,7 @@ import java.util.ArrayList;
 public class Left extends LinearOpMode
 {
     //INTRODUCE VARIABLES HERE
-    DcMotor leftLift, rightLift;
+    DcMotor leftLift, rightLift, arm;
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
@@ -52,11 +52,24 @@ public class Left extends LinearOpMode
         LIFT_MOVE,
     }
 
-    int targetPos = 0;
+    public enum ArmState {
+        ARM_START,
+        ARM_MOVE,
+    }
+
+    int liftTargetPos = 0;
     double lift_power = 0;
-    boolean start = false;
+    boolean lift_start = false;
+
+    int armTargetPos = 0;
+    double arm_power = 0;
+    boolean arm_start = false;
+
+    int PICKUP = 0;
+    int DROP = 1000;
 
     LiftState liftState = LiftState.LIFT_START;
+    ArmState armState = ArmState.ARM_START;
 
     static final double FEET_PER_METER = 3.28084;
 
@@ -126,6 +139,12 @@ public class Left extends LinearOpMode
         leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        arm = hardwareMap.get(DcMotor.class, "arm");
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm.setTargetPosition(0);
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         Servo servoScissor = hardwareMap.get(Servo.class, "servoScissor");
         Servo verticalServo = hardwareMap.get(Servo.class, "servoScissorLift");
 
@@ -138,47 +157,52 @@ public class Left extends LinearOpMode
 
         drive.setPoseEstimate(startPose);
 
-        /*
         TrajectorySequence common = drive.trajectorySequenceBuilder(startPose)
+
+                /* Preload
+
+                1.Start with cone in the back, move arm to front/dropping position while moving forward, after small delay extend the lift to high junction
+                2. Drop the cone
+
+                 */
+
+                /* First cycle
+
+                 1. Once cone is dropped, move arm to back/pickup position and start to lower lift while robot moving backwards
+                 3. Pick up cone
+                 4. This time lift goes up first, very small delay --> start moving backward towards junction
+                 5. After small delay, arm starts to swing back to front/dropping position
+                 */
+
                 // preload
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.67))
-                .UNSTABLE_addTemporalMarkerOffset(1, () -> verticalServo.setPosition(0))
-                .UNSTABLE_addTemporalMarkerOffset(2, () -> moveLift(0.8, 500))
-                .waitSeconds(3) // change to 1
+                .UNSTABLE_addTemporalMarkerOffset(0.1, () -> moveArm(0.5, 1000))
+                .waitSeconds(0.3)
 
-                .forward(56.8)
-                .waitSeconds(1)
-                .back(6.5)
-                .waitSeconds(1)
-                .turn(Math.toRadians(-45))
-
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> moveLift(0.8, 3150))
-                .waitSeconds(2) // change to 0.5
-                .forward(7.85)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.5))
-                .waitSeconds(0.2)
-                .back(7)
-                .turn(Math.toRadians(-45))
-
-                .build();
-
-         */
-
-        TrajectorySequence common = drive.trajectorySequenceBuilder(startPose)
-                // preload
+                .UNSTABLE_addTemporalMarkerOffset(1, () -> moveLift(0.5, 3000))
                 .splineTo(new Vector2d(-35, -20), Math.toRadians(90))
                 .splineTo(new Vector2d(-27, -8), Math.toRadians(65))
+
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.5))
                 .waitSeconds(0.5)
 
                 // cycle 1
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> moveArm(0.5, 1500))
+                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> moveLift(0.5, 500))
+
                 .setReversed(true)
                 .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
                 .splineTo(new Vector2d(-60, -11.5), Math.toRadians(180))
                 .setReversed(false)
+
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.67))
+                .UNSTABLE_addTemporalMarkerOffset(0.2, () -> moveLift(0.8, 3000))
+                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> moveArm(0.5, 1000))
                 .waitSeconds(0.5)
 
                 .splineTo(new Vector2d(-40, -11.5), Math.toRadians(0))
                 .splineTo(new Vector2d(-28, -8.5), Math.toRadians(60))
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.5))
                 .waitSeconds(0.5)
 
                 // parking
@@ -307,9 +331,9 @@ public class Left extends LinearOpMode
 
             switch (liftState) {
                 case LIFT_START:
-                    if (start) {
-                        leftLift.setTargetPosition(targetPos);
-                        rightLift.setTargetPosition(targetPos);
+                    if (lift_start) {
+                        leftLift.setTargetPosition(liftTargetPos);
+                        rightLift.setTargetPosition(liftTargetPos);
 
                         leftLift.setPower(lift_power);
                         rightLift.setPower(lift_power);
@@ -322,7 +346,7 @@ public class Left extends LinearOpMode
                         leftLift.setPower(0);
                         rightLift.setPower(0);
 
-                        start = false;
+                        lift_start = false;
                         liftState = LiftState.LIFT_START;
                     }
                     break;
@@ -330,6 +354,26 @@ public class Left extends LinearOpMode
                 default:
                     liftState = LiftState.LIFT_START;
             }
+        switch (armState) {
+            case ARM_START:
+                if (arm_start) {
+                    arm.setTargetPosition(armTargetPos);
+                    arm.setPower(lift_power);
+
+                    armState = ArmState.ARM_MOVE;
+                }
+                break;
+            case ARM_MOVE:
+                if (arm.getCurrentPosition() < arm.getTargetPosition() + 10 && arm.getCurrentPosition() > arm.getTargetPosition() - 10) {
+                    arm.setPower(0);
+
+                    arm_start = false;
+                    armState = ArmState.ARM_START;
+                }
+                break;
+            default:
+                armState = ArmState.ARM_START;
+        }
 
             telemetry.addData("Left Lift Power: ", leftLift.getPower());
             telemetry.addData("Right Lift Power: ", rightLift.getPower());
@@ -342,10 +386,26 @@ public class Left extends LinearOpMode
 
     }
 
+    /**
+     * Moves lift to certain height
+     * @param power max power
+     * @param ticks target position
+     */
     public void moveLift(double power, int ticks) {
-        targetPos = ticks;
+        liftTargetPos = ticks;
         lift_power = power;
-        start = true;
+        lift_start = true;
+    }
+
+    /**
+     * Moves arm to certain height
+     * @param power max power
+     * @param ticks target position
+     */
+    public void moveArm(double power, int ticks) {
+        armTargetPos = ticks;
+        arm_power = power;
+        arm_start = true;
     }
 
     void tagToTelemetry(AprilTagDetection detection)
