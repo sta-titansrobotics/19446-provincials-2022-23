@@ -216,6 +216,10 @@ public class RevisedTeleOp extends LinearOpMode{
                         leftLift.setPower(0);
                         rightLift.setPower(0);
 
+                        leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
                         switchVal = -2;
                     }
                     break;
