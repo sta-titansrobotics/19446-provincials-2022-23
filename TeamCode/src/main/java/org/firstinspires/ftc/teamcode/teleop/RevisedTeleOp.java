@@ -18,9 +18,8 @@ public class RevisedTeleOp extends LinearOpMode{
 
     boolean pGA2A = false;
 
-    double Plateau = 600;
 
-    double slowSpeed = 0.7;
+
     double strafeCounteract = 1.1;
 
     double scissorOpen = 0.67;
@@ -28,19 +27,19 @@ public class RevisedTeleOp extends LinearOpMode{
 
     boolean scissorToggle = false;
 
-    double armReturn;
-    double armStartPos;
-    boolean armModeToggle = false;
-    boolean armMoveUp = false;
-
-    double MAXPOSITION = 10000000;
+    double LIFTMAXPOSITION = 10000000;
 
     double GROUNDJUNC = 0, LOWJUNC = 100, MIDJUNC = 500, HIGHJUNC = 1000;
 
-
     boolean pPresetUP = false;
-    int currPreset = 0;
+    int liftCurrPreset = 0;
 
+    double ARMMAXPOSITION = 1000000;
+
+    double DOWNPOS = 0, FORWARDPOS = 100, BACKPOS = 300, PEAK = 200;
+    double armPower = 0;
+
+    int armCurrPreset = 0;
 
     @Override
     public void runOpMode() {
@@ -116,21 +115,20 @@ public class RevisedTeleOp extends LinearOpMode{
 
             /* LIFT */
             // Apply power to Lift
-            //Lift(liftPowerLeft(), liftPowerRight());
             double gamepad2Y = -gamepad2.left_stick_y;
             if(gamepad2Y != 0) {
-                liftPowerLeft(leftLift, -y);
-                liftPowerRight(rightLift, -y);
+                liftPowerLeft(leftLift, -gamepad2Y);
+                liftPowerRight(rightLift, -gamepad2Y);
             }
 
-            int returnTo = 0;
+            int liftReturnTo = 0;
 
-            switch (currPreset) {
+            switch (liftCurrPreset) {
                 case 0:
 
                     if(gamepad2.dpad_up) {
 
-                        returnTo = 1;
+                        liftReturnTo = 1;
 
                         leftLift.setTargetPosition((int) GROUNDJUNC);
                         rightLift.setTargetPosition((int) GROUNDJUNC);
@@ -138,11 +136,11 @@ public class RevisedTeleOp extends LinearOpMode{
                         leftLift.setPower(1);
                         rightLift.setPower(1);
 
-                        currPreset = -1;
+                        liftCurrPreset = -1;
 
 
                     } else if (gamepad2.dpad_down){
-                        returnTo = 3;
+                        liftReturnTo = 3;
 
                         leftLift.setTargetPosition((int) GROUNDJUNC);
                         rightLift.setTargetPosition((int) GROUNDJUNC);
@@ -150,14 +148,14 @@ public class RevisedTeleOp extends LinearOpMode{
                         leftLift.setPower(1);
                         rightLift.setPower(1);
 
-                        currPreset = -1;
+                        liftCurrPreset = -1;
                     }
                     break;
                 case 1:
 
                     if(gamepad2.dpad_up) {
 
-                        returnTo = 2;
+                        liftReturnTo = 2;
 
                         leftLift.setTargetPosition((int) LOWJUNC);
                         rightLift.setTargetPosition((int) LOWJUNC);
@@ -165,11 +163,11 @@ public class RevisedTeleOp extends LinearOpMode{
                         leftLift.setPower(1);
                         rightLift.setPower(1);
 
-                        currPreset = -1;
+                        liftCurrPreset = -1;
 
 
                     } else if (gamepad2.dpad_down){
-                        returnTo = 0;
+                        liftReturnTo = 0;
 
                         leftLift.setTargetPosition((int) LOWJUNC);
                         rightLift.setTargetPosition((int) LOWJUNC);
@@ -177,14 +175,14 @@ public class RevisedTeleOp extends LinearOpMode{
                         leftLift.setPower(1);
                         rightLift.setPower(1);
 
-                        currPreset = -1;
+                        liftCurrPreset = -1;
                     }
                     break;
                 case 2:
 
                     if(gamepad2.dpad_up) {
 
-                        returnTo = 3;
+                        liftReturnTo = 3;
 
                         leftLift.setTargetPosition((int) MIDJUNC);
                         rightLift.setTargetPosition((int) MIDJUNC);
@@ -192,11 +190,11 @@ public class RevisedTeleOp extends LinearOpMode{
                         leftLift.setPower(1);
                         rightLift.setPower(1);
 
-                        currPreset = -1;
+                        liftCurrPreset = -1;
 
 
                     } else if (gamepad2.dpad_down){
-                        returnTo = 1;
+                        liftReturnTo = 1;
 
                         leftLift.setTargetPosition((int) MIDJUNC);
                         rightLift.setTargetPosition((int) MIDJUNC);
@@ -204,14 +202,14 @@ public class RevisedTeleOp extends LinearOpMode{
                         leftLift.setPower(1);
                         rightLift.setPower(1);
 
-                        currPreset = -1;
+                        liftCurrPreset = -1;
                     }
                     break;
                 case 3:
 
                     if(gamepad2.dpad_up) {
 
-                        returnTo = 0;
+                        liftReturnTo = 0;
 
                         leftLift.setTargetPosition((int) HIGHJUNC);
                         rightLift.setTargetPosition((int) HIGHJUNC);
@@ -219,11 +217,11 @@ public class RevisedTeleOp extends LinearOpMode{
                         leftLift.setPower(1);
                         rightLift.setPower(1);
 
-                        currPreset = -1;
+                        liftCurrPreset = -1;
 
 
                     } else if (gamepad2.dpad_down){
-                        returnTo = 2;
+                        liftReturnTo = 2;
 
                         leftLift.setTargetPosition((int) HIGHJUNC);
                         rightLift.setTargetPosition((int) HIGHJUNC);
@@ -231,7 +229,7 @@ public class RevisedTeleOp extends LinearOpMode{
                         leftLift.setPower(1);
                         rightLift.setPower(1);
 
-                        currPreset = -1;
+                        liftCurrPreset = -1;
                     }
                     break;
                 case -1:
@@ -239,24 +237,40 @@ public class RevisedTeleOp extends LinearOpMode{
                         leftLift.setPower(0);
                         rightLift.setPower(0);
 
-                        currPreset = returnTo;
+                        liftCurrPreset = liftReturnTo;
                     }
                     break;
 
 
             }
 
-
-
-
-
-
             /* ARM */
             // Apply power to Arm
-            Arm.setPower(armPower());
+
+            if (gamepad2.right_stick_y != 0 && !Arm.isBusy()){
+                armMovement(Arm, -gamepad2.right_stick_y);
+            }
 
 
-            /* SCISSOR
+            if (gamepad2.x && !Arm.isBusy()){
+                Arm.setTargetPosition((int) DOWNPOS);
+            }
+            if (gamepad2.y && !Arm.isBusy()){
+                Arm.setTargetPosition((int) FORWARDPOS);
+            }
+            if (gamepad2.b && !Arm.isBusy()){
+                Arm.setTargetPosition((int) BACKPOS);
+            }
+
+            if (Arm.getCurrentPosition() > Arm.getTargetPosition()){
+                Arm.setPower(-1);
+            } else if (Arm.getCurrentPosition() < Arm.getCurrentPosition()){
+                Arm.setPower(1);
+            } else if (Arm.getCurrentPosition() < Arm.getCurrentPosition() + 10 && Arm.getCurrentPosition() > Arm.getCurrentPosition() - 10){
+                Arm.setPower(0);
+            }
+
+            /* SCISSOR */
             // scissor intake
             boolean ga2A = gamepad2.a;
 
@@ -281,7 +295,6 @@ public class RevisedTeleOp extends LinearOpMode{
             // Apply power to Scissor
             ScissorServo.setPosition(Range.clip(scissorPos, MIN_POSITION, MAX_POSITION));
 
-            */
             /* TELEMETRY OUTPUT */
             // motor data
             telemetry.addLine("Wheel Data");
@@ -300,7 +313,7 @@ public class RevisedTeleOp extends LinearOpMode{
             // arm data
             telemetry.addLine("");
             telemetry.addLine("Arm Data:");
-            telemetry.addData("Arm Power: ", armPower());
+            telemetry.addData("Arm Power: ", Arm.getPower());
 
             // lift data
             telemetry.addLine("");
@@ -322,7 +335,7 @@ public class RevisedTeleOp extends LinearOpMode{
             lLift.setPower(setPower * 0.85);
         }
 
-        if(lLift.getCurrentPosition() < MAXPOSITION) {
+        if(lLift.getCurrentPosition() < LIFTMAXPOSITION) {
             lLift.setPower(setPower * 0.35);
         }
     }
@@ -337,92 +350,24 @@ public class RevisedTeleOp extends LinearOpMode{
             rLift.setPower(setPower * 0.85);
         }
 
-        if(rLift.getCurrentPosition() < MAXPOSITION) {
+        if(rLift.getCurrentPosition() < LIFTMAXPOSITION) {
             rLift.setPower(setPower * 0.35);
         }
     }
 
     /**
      * @author Gregory L
-     * @return Power for the arm
+     * @param armMotor Arm motor being controlled by this method.
      * calculates and returns required power to the arm.
      */
-    public double armPower(){
+    public void armMovement(DcMotor armMotor, double setPower){
 
-        DcMotor Arm = hardwareMap.get(DcMotor.class, "arm");
-
-        waitForStart();
-
-        if (armModeToggle){
-
-            if (gamepad2.right_stick_y > 0 && !armMoveUp) {
-
-                armMoveUp = true;
-
-            }
-
-            if (armMoveUp){
-
-                armStartPos = Arm.getCurrentPosition();
-                armMoveUp = false;
-            }
-
-            if (gamepad2.right_stick_y > 0){
-
-                if (armStartPos < Plateau){
-
-                    // front to back
-                    armReturn = gamepad2.right_stick_y;
-
-                } else {
-
-                    // back to front
-                    armReturn = -gamepad2.right_stick_y;
-
-                }
-
-                // back to front slow
-                if (Arm.getCurrentPosition() < Plateau && armReturn != Math.abs(armReturn)){
-                    armReturn *= slowSpeed;
-                }
-
-                // front to back slow
-                if (Arm.getCurrentPosition() > Plateau && armReturn == Math.abs(armReturn)){
-                    armReturn *= slowSpeed;
-                }
-
-            }
-
-        } else {
-
-            // slow down past top point (joystick up)
-            if (Arm.getCurrentPosition() > Plateau && gamepad2.right_stick_y > 0) {
-
-                armReturn = gamepad2.right_stick_y * slowSpeed;
-            }
-
-            // slow down past top point (joystick down)
-            else if (Arm.getCurrentPosition() < Plateau && gamepad2.right_stick_y < 0) {
-
-                armReturn = gamepad2.right_stick_y * slowSpeed;
-            }
-
-            else{
-                armReturn = gamepad2.right_stick_y;
-            }
-
+        if (armMotor.getCurrentPosition() > 0){
+            armMotor.setPower(setPower * 0.85);
         }
 
-
-        // return values
-        return armReturn;
-    }
-
-
-
-
-
-
-
+        if (armMotor.getCurrentPosition() < ARMMAXPOSITION) {
+            armMotor.setPower(setPower * 0.35);
+        }
     }
 }
