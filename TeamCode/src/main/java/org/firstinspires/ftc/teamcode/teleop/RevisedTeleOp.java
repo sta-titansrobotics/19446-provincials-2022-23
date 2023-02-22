@@ -35,11 +35,12 @@ public class RevisedTeleOp extends LinearOpMode{
 
     double MAXPOSITION = 7100;
 
+
     double GROUNDJUNC = 0, LOWJUNC = 100, MIDJUNC = 500, HIGHJUNC = 1000;
 
 
     boolean pPresetUP = false, pPresetDOWN= false;
-    int currPreset = 0;
+    int currPreset = 0, switchVal = 0;
 
 
     @Override
@@ -150,7 +151,7 @@ public class RevisedTeleOp extends LinearOpMode{
             pPresetUP = presetUp;
 
             boolean presetDOWN = gamepad2.dpad_up;
-            if (presetDOWN && !presetDOWN) {
+            if (presetDOWN && !pPresetDOWN) {
                 changedPreset = true;
                 currPreset--;
                 if(currPreset < 0) {
@@ -160,8 +161,9 @@ public class RevisedTeleOp extends LinearOpMode{
             pPresetDOWN = presetDOWN;
 
 
-            int switchVal = 0;
-            if(changedPreset) {
+            if(switchVal == -1) {
+
+            } else if (changedPreset){
                 switchVal = currPreset;
             } else {
                 switchVal = -2;
@@ -169,14 +171,12 @@ public class RevisedTeleOp extends LinearOpMode{
 
             switch (switchVal) {
                 case 0:
-                    leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-                    rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
                     leftLift.setTargetPosition((int) GROUNDJUNC);
                     rightLift.setTargetPosition((int) GROUNDJUNC);
+
+                    leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
                     leftLift.setPower(1);
                     rightLift.setPower(1);
@@ -229,11 +229,11 @@ public class RevisedTeleOp extends LinearOpMode{
                         leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
+                        changedPreset = false;
                         switchVal = -2;
                     }
                     break;
-                default:
+                 case -2:
                     break;
 
             }
