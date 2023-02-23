@@ -25,13 +25,13 @@ public class oldPowerplay extends LinearOpMode {
     boolean scissorToggle = false;
     boolean sliderToggle = false;
 
-    public enum RpState {
-        rpSTART,
-        rpScissor,
-        rpUP,
+    public enum LimitState {
+        LIMIT_ON,
+        LIMIT_OFF,
+        LIMIT_RESET,
     }
 
-    RpState rpState = RpState.rpSTART;
+    LimitState limitState = LimitState.LIMIT_ON;
 
     @Override
     public void runOpMode() {
@@ -44,8 +44,8 @@ public class oldPowerplay extends LinearOpMode {
         DcMotor motorBR = hardwareMap.get(DcMotor.class, "motorBackRight");
 
         //Reverse left side motors
-        motorFL.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorFR.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBR.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Other
         leftLift = hardwareMap.get(DcMotor.class, "leftLift");
@@ -63,7 +63,7 @@ public class oldPowerplay extends LinearOpMode {
 
         Servo servoScissor = hardwareMap.get(Servo.class, "servoScissor");;
 
-        double verticalServoPos, scissorPos;
+        double scissorPos;
         double MIN_POSITION = 0, MAX_POSITION = 1;
 
         ElapsedTime rpTimer = new ElapsedTime();
@@ -98,20 +98,24 @@ public class oldPowerplay extends LinearOpMode {
             motorBR.setPower(backRightPower);
 
             // lift
+
+            // joystick up returns negative values, joystick down returns positive values
+
+            double lift_power = -gamepad2.left_stick_y; // flip it
             if (gamepad2.left_stick_y < 0) {
 
-                leftLift.setPower(-gamepad2.left_stick_y * 0.85);
-                rightLift.setPower(-gamepad2.left_stick_y * 0.85);
+                leftLift.setPower(lift_power * 0.85);
+                rightLift.setPower(lift_power* 0.85);
 
 
             } else if (gamepad2.left_stick_y > 0) {
 
                 if (leftLift.getCurrentPosition() > 0) {
-                    leftLift.setPower(-gamepad2.left_stick_y * 0.30);
+                    leftLift.setPower(lift_power * 0.30);
                 }
 
                 if (rightLift.getCurrentPosition() > 0) {
-                    rightLift.setPower(-gamepad2.left_stick_y * 0.30);
+                    rightLift.setPower(lift_power * 0.30);
                 }
 
             } else {
@@ -140,6 +144,42 @@ public class oldPowerplay extends LinearOpMode {
             pGA2A = ga2A;
 
 
+            switch (limitState) {
+                case LIMIT_ON:
+                    // limiters
+                    if (leftLift.getCurrentPosition() < 0) {
+                        leftLift.setPower(0.5);
+                        // moveLiftSingle(leftLift, 0.5, 0);
+                    }
+
+                    if (rightLift.getCurrentPosition() < 0) {
+                        rightLift.setPower(0.5);
+                        // moveLiftSingle(rightLift, 0.5, 0);
+                    }
+                    if (gamepad2.left_bumper) {
+                        limitState = LimitState.LIMIT_OFF;
+                    }
+                    break;
+                case LIMIT_OFF:
+                    if (gamepad2.left_bumper) {
+                        limitState = LimitState.LIMIT_RESET;
+                    }
+                    break;
+                case LIMIT_RESET:
+
+                    leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+                    limitState = LimitState.LIMIT_ON;
+
+                    break;
+
+                default:
+                    limitState = LimitState.LIMIT_ON;
+                    
+            }
 
             // set positions to servos
             servoScissor.setPosition(Range.clip(scissorPos, MIN_POSITION, MAX_POSITION));
@@ -156,68 +196,6 @@ public class oldPowerplay extends LinearOpMode {
         }
 
     }
-
-    /**
-     * Powers lift to target position
-     * @param power desired power
-     * @param ticks target position
-     */
-    public void moveLift(double power, int ticks) {
-        leftLift.setTargetPosition(ticks);
-        rightLift.setTargetPosition(ticks);
-
-        setLiftMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        motorPower(power);
-
-        while(leftLift.isBusy()) {
-
-        }
-
-        motorPower(0);
-
-        setLiftMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
-
-    /**
-     * Powers single lift motor to target position
-     * @param power desired power
-     * @param ticks target position
-     */
-    public void moveLiftSingle(DcMotor motor, double power, int ticks) {
-        motor.setTargetPosition(ticks);
-
-        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        motor.setPower(power);
-
-        while(motor.isBusy()) {
-
-        }
-
-        motor.setPower(0);
-
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
-
-    /**
-     * Set power of both lift motors
-     * @param power setPower
-     */
-    public void motorPower(double power) {
-        leftLift.setPower(power);
-        rightLift.setPower(power);
-    }
-
-    /**
-     * Change mode of cascading lift
-     * @param mode setMode
-     */
-    public void setLiftMode(DcMotor.RunMode mode) {
-        leftLift.setMode(mode);
-        rightLift.setMode(mode);
-    }
-
 
 
 
