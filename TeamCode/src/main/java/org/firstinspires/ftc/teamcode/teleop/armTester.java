@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 @TeleOp
 @Config
@@ -14,12 +15,12 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class armTester extends OpMode {
     private PIDController controller;
 
-    public static double p = 0, i = 0, d = 0;
-    public static double f = 0;
+    public static double p = 0.13, i = 0, d = 0.0001;
+    public static double f = 0.2;
 
     public static int target = 0;
 
-    private final double tickstoDegree = 0;
+    private final double tickstoDegree = 1.19;
 
     private DcMotor arm;
 
@@ -50,6 +51,7 @@ public class armTester extends OpMode {
 
         telemetry.addData("pos", armPos);
         telemetry.addData("target", target);
+        telemetry.addData("power", power);
         telemetry.update();
 
     }
