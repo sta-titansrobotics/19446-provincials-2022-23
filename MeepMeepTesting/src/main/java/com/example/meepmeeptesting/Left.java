@@ -89,68 +89,70 @@ public class Left {
                 .setConstraints(56, 56, Math.toRadians(180), Math.toRadians(180), 14.65)
                 .setDimensions(17.75, 17.875)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(-35, -61.8, Math.toRadians(90)))
+                        drive.trajectorySequenceBuilder(new Pose2d(-35, -62, Math.toRadians(90)))
 
                                 // preload
                                 .splineTo(new Vector2d(-35, -20), Math.toRadians(90))
-                                .splineTo(new Vector2d(-27, -8), Math.toRadians(65))
+                                .splineTo(new Vector2d(-30, -11.2), Math.toRadians(58))
                                 .waitSeconds(0.5)
-
 
                                 // cycle 1
                                 .setReversed(true)
-                                .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
-                                .splineTo(new Vector2d(-60, -11.5), Math.toRadians(180))
+                                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(180))
+                                .splineTo(new Vector2d(-60, -11.2), Math.toRadians(180))
                                 .setReversed(false)
                                 .waitSeconds(0.5)
 
-                                .splineTo(new Vector2d(-40, -11.5), Math.toRadians(0))
-                                .splineTo(new Vector2d(-28, -8.5), Math.toRadians(60))
+                                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(0))
+                                .splineTo(new Vector2d(-30, -11.2), Math.toRadians(58))
                                 .waitSeconds(0.5)
 
-                                // cycle 2
+                                // cycle 1
                                 .setReversed(true)
-                                .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
-                                .splineTo(new Vector2d(-60, -11.5), Math.toRadians(180))
+                                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(180))
+                                .splineTo(new Vector2d(-60, -11.2), Math.toRadians(180))
                                 .setReversed(false)
                                 .waitSeconds(0.5)
 
-                                .splineTo(new Vector2d(-40, -11.5), Math.toRadians(0))
-                                .splineTo(new Vector2d(-28, -8.5), Math.toRadians(60))
+                                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(0))
+                                .splineTo(new Vector2d(-30, -11.2), Math.toRadians(58))
                                 .waitSeconds(0.5)
 
-                                // cycle 3
+                                // cycle 1
                                 .setReversed(true)
-                                .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
-                                .splineTo(new Vector2d(-60, -11.5), Math.toRadians(180))
+                                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(180))
+                                .splineTo(new Vector2d(-60, -11.2), Math.toRadians(180))
                                 .setReversed(false)
                                 .waitSeconds(0.5)
 
-                                .splineTo(new Vector2d(-40, -11.5), Math.toRadians(0))
-                                .splineTo(new Vector2d(-28, -8.5), Math.toRadians(60))
+                                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(0))
+                                .splineTo(new Vector2d(-30, -11.2), Math.toRadians(58))
                                 .waitSeconds(0.5)
 
-                                // cycle 4
+                                // cycle 1
                                 .setReversed(true)
-                                .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
-                                .splineTo(new Vector2d(-60, -11.5), Math.toRadians(180))
+                                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(180))
+                                .splineTo(new Vector2d(-60, -11.2), Math.toRadians(180))
                                 .setReversed(false)
                                 .waitSeconds(0.5)
 
-                                .splineTo(new Vector2d(-40, -11.5), Math.toRadians(0))
-                                .splineTo(new Vector2d(-28, -8.5), Math.toRadians(60))
+                                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(0))
+                                .splineTo(new Vector2d(-30, -11.2), Math.toRadians(58))
                                 .waitSeconds(0.5)
 
-                                // cycle 5
+                                // cycle 1
                                 .setReversed(true)
-                                .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
-                                .splineTo(new Vector2d(-60, -11.5), Math.toRadians(180))
+                                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(180))
+                                .splineTo(new Vector2d(-60, -11.2), Math.toRadians(180))
                                 .setReversed(false)
                                 .waitSeconds(0.5)
 
-                                .splineTo(new Vector2d(-40, -11.5), Math.toRadians(0))
-                                .splineTo(new Vector2d(-28, -8.5), Math.toRadians(60))
+                                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(0))
+                                .splineTo(new Vector2d(-30, -11.2), Math.toRadians(58))
                                 .waitSeconds(0.5)
+
+
+
 
                                 // parking
                                 .setReversed(true)
