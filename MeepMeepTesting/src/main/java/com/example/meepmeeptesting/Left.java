@@ -87,7 +87,7 @@ public class Left {
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(56, 56, Math.toRadians(180), Math.toRadians(180), 14.65)
-                .setDimensions(16, 17)
+                .setDimensions(17.75, 17.875)
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(-35, -61.8, Math.toRadians(90)))
 

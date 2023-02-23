@@ -175,34 +175,75 @@ public class Left extends LinearOpMode
                  */
 
                 // preload
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.67))
-                .UNSTABLE_addTemporalMarkerOffset(0.1, () -> moveArm(0.5, 1000))
-                .waitSeconds(0.3)
 
-                .UNSTABLE_addTemporalMarkerOffset(1, () -> moveLift(0.5, 3000))
                 .splineTo(new Vector2d(-35, -20), Math.toRadians(90))
                 .splineTo(new Vector2d(-27, -8), Math.toRadians(65))
 
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.5))
                 .waitSeconds(0.5)
 
                 // cycle 1
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> moveArm(0.5, 1500))
-                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> moveLift(0.5, 500))
 
                 .setReversed(true)
                 .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
                 .splineTo(new Vector2d(-60, -11.5), Math.toRadians(180))
                 .setReversed(false)
 
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.67))
-                .UNSTABLE_addTemporalMarkerOffset(0.2, () -> moveLift(0.8, 3000))
-                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> moveArm(0.5, 1000))
                 .waitSeconds(0.5)
 
                 .splineTo(new Vector2d(-40, -11.5), Math.toRadians(0))
                 .splineTo(new Vector2d(-28, -8.5), Math.toRadians(60))
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.5))
+                .waitSeconds(0.5)
+
+                // cycle 1
+
+                .setReversed(true)
+                .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
+                .splineTo(new Vector2d(-60, -11.5), Math.toRadians(180))
+                .setReversed(false)
+
+                .waitSeconds(0.5)
+
+                .splineTo(new Vector2d(-40, -11.5), Math.toRadians(0))
+                .splineTo(new Vector2d(-28, -8.5), Math.toRadians(60))
+                .waitSeconds(0.5)
+
+                // cycle 1
+
+                .setReversed(true)
+                .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
+                .splineTo(new Vector2d(-60, -11.5), Math.toRadians(180))
+                .setReversed(false)
+
+                .waitSeconds(0.5)
+
+                .splineTo(new Vector2d(-40, -11.5), Math.toRadians(0))
+                .splineTo(new Vector2d(-28, -8.5), Math.toRadians(60))
+                .waitSeconds(0.5)
+
+                // cycle 1
+
+                .setReversed(true)
+                .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
+                .splineTo(new Vector2d(-60, -11.5), Math.toRadians(180))
+                .setReversed(false)
+
+                .waitSeconds(0.5)
+
+                .splineTo(new Vector2d(-40, -11.5), Math.toRadians(0))
+                .splineTo(new Vector2d(-28, -8.5), Math.toRadians(60))
+                .waitSeconds(0.5)
+
+                // cycle 1
+
+                .setReversed(true)
+                .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
+                .splineTo(new Vector2d(-60, -11.5), Math.toRadians(180))
+                .setReversed(false)
+
+                .waitSeconds(0.5)
+
+                .splineTo(new Vector2d(-40, -11.5), Math.toRadians(0))
+                .splineTo(new Vector2d(-28, -8.5), Math.toRadians(60))
                 .waitSeconds(0.5)
 
                 // parking

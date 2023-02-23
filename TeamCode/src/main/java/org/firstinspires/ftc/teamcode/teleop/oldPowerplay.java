@@ -20,9 +20,7 @@ public class oldPowerplay extends LinearOpMode {
     boolean pLeftBumper = false;
 
     boolean pGA2Y = false;
-    boolean pGA2X = false;
     boolean pGA2A = false;
-    boolean pGA2B = false;
 
     boolean scissorToggle = false;
     boolean sliderToggle = false;
@@ -63,11 +61,7 @@ public class oldPowerplay extends LinearOpMode {
         leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        Servo servoScissor = hardwareMap.get(Servo.class, "servoScissor");
-        Servo verticalServo = hardwareMap.get(Servo.class, "servoScissorLift");
-
-        TouchSensor liftSensorRight = hardwareMap.get(TouchSensor.class, "liftSensorRight");
-        TouchSensor liftSensorLeft = hardwareMap.get(TouchSensor.class, "liftSensorLeft");
+        Servo servoScissor = hardwareMap.get(Servo.class, "servoScissor");;
 
         double verticalServoPos, scissorPos;
         double MIN_POSITION = 0, MAX_POSITION = 1;
@@ -77,7 +71,6 @@ public class oldPowerplay extends LinearOpMode {
         waitForStart();
 
         // set initial positions
-        verticalServoPos = 0.5;
         scissorPos = 0.5;
 
         if (isStopRequested()) return;
@@ -110,9 +103,6 @@ public class oldPowerplay extends LinearOpMode {
                 leftLift.setPower(-gamepad2.left_stick_y * 0.85);
                 rightLift.setPower(-gamepad2.left_stick_y * 0.85);
 
-                if (verticalServoPos > MIN_POSITION) {
-                    verticalServoPos += 0.01;
-                }
 
             } else if (gamepad2.left_stick_y > 0) {
 
@@ -124,110 +114,34 @@ public class oldPowerplay extends LinearOpMode {
                     rightLift.setPower(-gamepad2.left_stick_y * 0.30);
                 }
 
-
-                if (verticalServoPos < MAX_POSITION) {
-                    verticalServoPos -= 0.01;
-                }
             } else {
-
-                if (leftLift.getCurrentPosition() > 750 && !gamepad2.x && !leftLift.isBusy()) {
-
-                    leftLift.setPower(0.1);
-                    rightLift.setPower(0.1);
-                }
-
-                else if (!gamepad2.x && !leftLift.isBusy()){
-
-                    leftLift.setPower(0);
-                    rightLift.setPower(0);
-                }
-
+                leftLift.setPower(0);
+                rightLift.setPower(0);
             }
-
-
-            if (leftLift.getCurrentPosition() < 0) {
-                leftLift.setPower(0.5);
-                // moveLiftSingle(leftLift, 0.5, 0);
-            }
-
-
-            if (rightLift.getCurrentPosition() < 0) {
-                rightLift.setPower(0.5);
-                // moveLiftSingle(rightLift, 0.5, 0);
-            }
-
-            // scissor rp fsm
-            switch (rpState) {
-                case rpSTART:
-                    boolean ga2B = gamepad2.b;
-                    if (ga2B && !pGA2B) {
-                        verticalServoPos = 0;
-                        rpTimer.reset();
-                        rpState = RpState.rpScissor;
-                    }
-                    pGA2B = ga2B;
-                    break;
-                case rpScissor:
-                    if (rpTimer.seconds() >= 1.17) {
-                        scissorPos = 0.67;
-                        rpTimer.reset();
-                        rpState = RpState.rpUP;
-                    }
-                    break;
-                case rpUP:
-                    if (rpTimer.seconds() >= 0.50) {
-                        verticalServoPos = 1;
-                        rpState = RpState.rpSTART;
-                    }
-                    break;
-                default:
-                    // SHOULD never reach this
-                    rpState = RpState.rpSTART;
-
-
-            }
-            // vertical slider
-            boolean rightBumper = gamepad2.right_bumper;
-            if (rightBumper && !pRightBumper && verticalServoPos < MAX_POSITION) {
-                verticalServoPos += 0.25;
-            }
-            pRightBumper = rightBumper;
-
-            boolean leftBumper = gamepad2.left_bumper;
-            if (leftBumper && !pLeftBumper && verticalServoPos > MIN_POSITION) {
-                verticalServoPos -= 0.25;
-            }
-            pLeftBumper = leftBumper;
 
             // scissor intake
             boolean ga2Y = gamepad2.y;
             if (ga2Y && !pGA2Y) {
 
-                if (scissorPos == 0.67) {
-                    scissorPos = 0.48;
-                } else {
-                    scissorPos = 0.67;
+                if (scissorPos > 0) {
+                    scissorPos += 0.1;
                 }
+
             }
             pGA2Y = ga2Y;
 
-            // lift presets
-            boolean ga2X = gamepad2.x;
-            if (ga2X && !pGA2X) {
-                moveLift(0.5, 0);
-            }
-            pGA2X = ga2X;
-
             boolean ga2A = gamepad2.a;
             if (ga2A && !pGA2A) {
-                moveLift(0.8, 3150);
+                if (scissorPos < 1) {
+                    scissorPos -= 0.1;
+                }
+
             }
             pGA2A = ga2A;
 
 
 
             // set positions to servos
-            verticalServo.setPosition(Range.clip(verticalServoPos, MIN_POSITION, MAX_POSITION));
             servoScissor.setPosition(Range.clip(scissorPos, MIN_POSITION, MAX_POSITION));
 
             // add telemetry data
@@ -235,10 +149,7 @@ public class oldPowerplay extends LinearOpMode {
             telemetry.addData("Right Lift Power: ", rightLift.getPower());
             telemetry.addData("Left Lift Encoder: ", leftLift.getCurrentPosition());
             telemetry.addData("Right Lift Encoder: ", rightLift.getCurrentPosition());
-            telemetry.addData("Vertical Slider Position: ", verticalServo.getPosition());
             telemetry.addData("Scissor Intake Position: ", servoScissor.getPosition());
-            telemetry.addData("Left Touch Sensor: ", liftSensorLeft.isPressed());
-            telemetry.addData("Right Touch Sensor: ", liftSensorRight.isPressed());
 
             telemetry.update();
 
