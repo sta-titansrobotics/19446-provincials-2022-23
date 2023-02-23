@@ -73,9 +73,8 @@ public class oldPowerplay extends LinearOpMode {
 
         DcMotor arm = hardwareMap.get(DcMotor.class, "arm");
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        arm.setTargetPosition(armPosition);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         Servo servoScissor = hardwareMap.get(Servo.class, "scissor");
 
@@ -137,8 +136,21 @@ public class oldPowerplay extends LinearOpMode {
             }
 
             // arm
+            double arm_power = -gamepad2.right_stick_y; // flip it
 
-            arm.setPower(0.5);
+            if (gamepad2.right_stick_y < 0) {
+
+                arm.setPower(arm_power);
+
+
+            } else if (gamepad2.right_stick_y > 0) {
+
+                arm.setPower(arm_power);
+
+
+            } else {
+                arm.setPower(0);
+            }
 
             // scissor intake
             boolean ga2A = gamepad2.a;
@@ -160,22 +172,6 @@ public class oldPowerplay extends LinearOpMode {
             }
             pGA2Y = ga2Y;
 
-            // arm code allows movement for up and down
-            boolean UP = gamepad2.dpad_up;
-            if (UP && !pUP) {
-
-                armPosition += 10;
-
-            }
-            pUP = UP;
-
-            boolean DOWN = gamepad2.dpad_down;
-            if (DOWN && !pDOWN) {
-
-                armPosition -= 10;
-
-            }
-            pDOWN = DOWN;
 
             // limiters
             boolean ga2X = gamepad2.x;
