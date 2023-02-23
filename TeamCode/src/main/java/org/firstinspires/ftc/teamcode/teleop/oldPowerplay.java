@@ -21,14 +21,21 @@ public class oldPowerplay extends LinearOpMode {
 
     boolean pGA2Y = false;
     boolean pGA2A = false;
+    boolean pGA2X = false;
+
+
+    boolean pUP;
+    boolean pDOWN;
 
     boolean scissorToggle = false;
-    boolean sliderToggle = false;
+
+    int armPosition = 0;
+
+
 
     public enum LimitState {
         LIMIT_ON,
         LIMIT_OFF,
-        LIMIT_RESET,
     }
 
     LimitState limitState = LimitState.LIMIT_ON;
@@ -58,10 +65,19 @@ public class oldPowerplay extends LinearOpMode {
         leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        Servo servoScissor = hardwareMap.get(Servo.class, "servoScissor");;
+        DcMotor arm = hardwareMap.get(DcMotor.class, "arm");
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm.setTargetPosition(armPosition);
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        Servo servoScissor = hardwareMap.get(Servo.class, "scissor");
 
         double scissorPos;
         double MIN_POSITION = 0, MAX_POSITION = 1;
@@ -102,78 +118,96 @@ public class oldPowerplay extends LinearOpMode {
             // joystick up returns negative values, joystick down returns positive values
 
             double lift_power = -gamepad2.left_stick_y; // flip it
+
             if (gamepad2.left_stick_y < 0) {
 
-                leftLift.setPower(lift_power * 0.85);
-                rightLift.setPower(lift_power* 0.85);
+                leftLift.setPower(lift_power);
+                rightLift.setPower(lift_power);
 
 
             } else if (gamepad2.left_stick_y > 0) {
 
-                if (leftLift.getCurrentPosition() > 0) {
-                    leftLift.setPower(lift_power * 0.30);
-                }
+                leftLift.setPower(lift_power);
+                rightLift.setPower(lift_power);
 
-                if (rightLift.getCurrentPosition() > 0) {
-                    rightLift.setPower(lift_power * 0.30);
-                }
 
             } else {
                 leftLift.setPower(0);
                 rightLift.setPower(0);
             }
 
+            // arm
+
+            arm.setPower(0.5);
+
             // scissor intake
-            boolean ga2Y = gamepad2.y;
-            if (ga2Y && !pGA2Y) {
-
-                if (scissorPos > 0) {
-                    scissorPos += 0.1;
-                }
-
-            }
-            pGA2Y = ga2Y;
-
             boolean ga2A = gamepad2.a;
             if (ga2A && !pGA2A) {
-                if (scissorPos < 1) {
-                    scissorPos -= 0.1;
+
+                if (scissorPos > 0) {
+                    scissorPos += 0.01;
                 }
 
             }
             pGA2A = ga2A;
 
+            boolean ga2Y = gamepad2.y;
+            if (ga2Y && !pGA2Y) {
+                if (scissorPos < 1) {
+                    scissorPos -= 0.01;
+                }
 
+            }
+            pGA2Y = ga2Y;
+
+            // arm code allows movement for up and down
+            boolean UP = gamepad2.dpad_up;
+            if (UP && !pUP) {
+
+                armPosition += 10;
+
+            }
+            pUP = UP;
+
+            boolean DOWN = gamepad2.dpad_down;
+            if (DOWN && !pDOWN) {
+
+                armPosition -= 10;
+
+            }
+            pDOWN = DOWN;
+
+            // limiters
+            boolean ga2X = gamepad2.x;
             switch (limitState) {
                 case LIMIT_ON:
-                    // limiters
+
                     if (leftLift.getCurrentPosition() < 0) {
                         leftLift.setPower(0.5);
-                        // moveLiftSingle(leftLift, 0.5, 0);
                     }
 
                     if (rightLift.getCurrentPosition() < 0) {
                         rightLift.setPower(0.5);
-                        // moveLiftSingle(rightLift, 0.5, 0);
                     }
-                    if (gamepad2.left_bumper) {
+
+                    if (ga2X && !pGA2X) {
                         limitState = LimitState.LIMIT_OFF;
                     }
+                    pGA2X = ga2X;
+
                     break;
+
                 case LIMIT_OFF:
-                    if (gamepad2.left_bumper) {
-                        limitState = LimitState.LIMIT_RESET;
+
+                    if (ga2X && !pGA2X) {
+                        leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+                        limitState = LimitState.LIMIT_ON;
                     }
-                    break;
-                case LIMIT_RESET:
-
-                    leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-                    limitState = LimitState.LIMIT_ON;
-
+                    pGA2X = ga2X;
                     break;
 
                 default:
@@ -181,7 +215,8 @@ public class oldPowerplay extends LinearOpMode {
                     
             }
 
-            // set positions to servos
+            // set positions to arm and scissor
+            arm.setTargetPosition(armPosition);
             servoScissor.setPosition(Range.clip(scissorPos, MIN_POSITION, MAX_POSITION));
 
             // add telemetry data
@@ -190,6 +225,9 @@ public class oldPowerplay extends LinearOpMode {
             telemetry.addData("Left Lift Encoder: ", leftLift.getCurrentPosition());
             telemetry.addData("Right Lift Encoder: ", rightLift.getCurrentPosition());
             telemetry.addData("Scissor Intake Position: ", servoScissor.getPosition());
+            telemetry.addData("Arm Power: ", arm.getPower());
+            telemetry.addData("Arm Encoder: ", arm.getCurrentPosition());
+            telemetry.addData("Limit State: ", limitState);
 
             telemetry.update();
 
