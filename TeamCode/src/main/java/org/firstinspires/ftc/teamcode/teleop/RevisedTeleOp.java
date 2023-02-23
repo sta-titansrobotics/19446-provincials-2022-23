@@ -150,7 +150,7 @@ public class RevisedTeleOp extends LinearOpMode{
             }
             pPresetUP = presetUp;
 
-            boolean presetDOWN = gamepad2.dpad_up;
+            boolean presetDOWN = gamepad2.dpad_down;
             if (presetDOWN && !pPresetDOWN) {
                 changedPreset = true;
                 currPreset--;
