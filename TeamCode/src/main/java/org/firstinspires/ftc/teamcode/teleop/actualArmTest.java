@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 @TeleOp
 @Config
 
-public class armTester extends OpMode {
+public class actualArmTest extends OpMode {
     private PIDController controller;
 
     public static double p = 0.13, i = 0, d = 0.0001;
