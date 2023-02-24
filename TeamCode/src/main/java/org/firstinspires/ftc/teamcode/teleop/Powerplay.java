@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -14,18 +16,16 @@ import com.qualcomm.robotcore.util.Range;
 @TeleOp
 public class Powerplay extends LinearOpMode {
 
-    DcMotor leftLift, rightLift;
+    DcMotor leftLift, rightLift, arm;
 
-    private PIDController controller;
+    PIDController controller;
 
     public static double p = 0.13, i = 0, d = 0.0001;
     public static double f = 0.2;
 
     public static int target = 0;
 
-    private final double tickstoDegree = 1.19;
-
-    private DcMotor arm;
+    final double tickstoDegree = 1.19;
 
     boolean pGA2Y = false;
     boolean pGA2A = false;
@@ -33,7 +33,7 @@ public class Powerplay extends LinearOpMode {
 
     boolean scissorToggle = false;
 
-    double GROUNDJUNC = 0, LOWJUNC = 100, MIDJUNC = 500, HIGHJUNC = 1000;
+    double GROUNDJUNC = 0, LOWJUNC = 500, MIDJUNC = 100, HIGHJUNC = 1000;
 
     boolean pPresetUP = false, pPresetDOWN= false;
     int currPreset = 0, switchVal = 0;
@@ -81,6 +81,9 @@ public class Powerplay extends LinearOpMode {
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        controller = new PIDController(p, i, d);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         Servo servoScissor = hardwareMap.get(Servo.class, "scissor");
 
