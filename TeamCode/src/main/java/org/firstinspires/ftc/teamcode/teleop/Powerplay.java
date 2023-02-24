@@ -1,36 +1,42 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 //blah blah blah
 
 @TeleOp
-public class oldPowerplay extends LinearOpMode {
+public class Powerplay extends LinearOpMode {
 
     DcMotor leftLift, rightLift;
 
-    boolean pRightBumper = false;
-    boolean pLeftBumper = false;
+    private PIDController controller;
+
+    public static double p = 0.13, i = 0, d = 0.0001;
+    public static double f = 0.2;
+
+    public static int target = 0;
+
+    private final double tickstoDegree = 1.19;
+
+    private DcMotor arm;
 
     boolean pGA2Y = false;
     boolean pGA2A = false;
     boolean pGA2X = false;
 
-
-    boolean pUP;
-    boolean pDOWN;
-
     boolean scissorToggle = false;
 
-    int armPosition = 0;
+    double GROUNDJUNC = 0, LOWJUNC = 100, MIDJUNC = 500, HIGHJUNC = 1000;
 
+    boolean pPresetUP = false, pPresetDOWN= false;
+    int currPreset = 0, switchVal = 0;
 
 
     public enum LimitState {
@@ -71,7 +77,7 @@ public class oldPowerplay extends LinearOpMode {
         leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        DcMotor arm = hardwareMap.get(DcMotor.class, "arm");
+        arm = hardwareMap.get(DcMotor.class, "arm");
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -135,22 +141,32 @@ public class oldPowerplay extends LinearOpMode {
                 rightLift.setPower(0);
             }
 
-            // arm
-            double arm_power = -gamepad2.right_stick_y; // flip it
-
+            // arm code
             if (gamepad2.right_stick_y < 0) {
 
-                arm.setPower(arm_power);
+                target += 2;
 
 
             } else if (gamepad2.right_stick_y > 0) {
 
-                arm.setPower(arm_power);
-
-
-            } else {
-                arm.setPower(0);
+                target -= 2;
             }
+
+            if (target < 0) {
+                target = 0;
+            }
+
+            controller.setPID(p, i, d);
+            int armPos = arm.getCurrentPosition();
+
+            double pid = controller.calculate(armPos, target);
+
+            double ff = Math.cos(Math.toRadians(target / tickstoDegree)) * f;
+
+            double power = ff + pid;
+
+
+            arm.setPower(power);
 
             // scissor intake
             boolean ga2A = gamepad2.a;
@@ -211,8 +227,107 @@ public class oldPowerplay extends LinearOpMode {
                     
             }
 
+            boolean changedPreset = false;
+            boolean presetUp = gamepad2.dpad_up;
+            if (presetUp && !pPresetUP) {
+                changedPreset = true;
+                currPreset++;
+                if(currPreset > 3) {
+                    currPreset = 0;
+                }
+            }
+            pPresetUP = presetUp;
+
+            boolean presetDOWN = gamepad2.dpad_down;
+            if (presetDOWN && !pPresetDOWN) {
+                changedPreset = true;
+                currPreset--;
+                if(currPreset < 0) {
+                    currPreset = 3;
+                }
+            }
+            pPresetDOWN = presetDOWN;
+
+
+            if(switchVal == -1) {
+
+            } else if (changedPreset){
+                switchVal = currPreset;
+            } else {
+                switchVal = -2;
+            }
+
+            switch (switchVal) {
+                case 0:
+
+
+                    leftLift.setTargetPosition((int) GROUNDJUNC);
+                    rightLift.setTargetPosition((int) GROUNDJUNC);
+
+                    leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                    leftLift.setPower(1);
+                    rightLift.setPower(1);
+
+                    switchVal = -1;
+
+
+                    break;
+                case 1:
+
+                    leftLift.setTargetPosition((int) LOWJUNC);
+                    rightLift.setTargetPosition((int) LOWJUNC);
+
+                    leftLift.setPower(1);
+                    rightLift.setPower(1);
+
+                    switchVal = -1;
+
+
+                    break;
+                case 2:
+
+                    leftLift.setTargetPosition((int) MIDJUNC);
+                    rightLift.setTargetPosition((int) MIDJUNC);
+
+                    leftLift.setPower(1);
+                    rightLift.setPower(1);
+
+                    switchVal = -1;
+
+
+                    break;
+                case 3:
+
+                    leftLift.setTargetPosition((int) HIGHJUNC);
+                    rightLift.setTargetPosition((int) HIGHJUNC);
+
+                    leftLift.setPower(1);
+                    rightLift.setPower(1);
+
+                    switchVal = -1;
+
+
+                    break;
+                case -1:
+                    if (leftLift.getCurrentPosition() < leftLift.getTargetPosition() + 10 && leftLift.getCurrentPosition() > leftLift.getTargetPosition() - 10) {
+                        leftLift.setPower(0);
+                        rightLift.setPower(0);
+
+                        leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+                        changedPreset = false;
+                        switchVal = -2;
+                    }
+                    break;
+                case -2:
+                    break;
+
+            }
+
             // set positions to arm and scissor
-            arm.setTargetPosition(armPosition);
             servoScissor.setPosition(Range.clip(scissorPos, MIN_POSITION, MAX_POSITION));
 
             // add telemetry data
@@ -221,8 +336,9 @@ public class oldPowerplay extends LinearOpMode {
             telemetry.addData("Left Lift Encoder: ", leftLift.getCurrentPosition());
             telemetry.addData("Right Lift Encoder: ", rightLift.getCurrentPosition());
             telemetry.addData("Scissor Intake Position: ", servoScissor.getPosition());
-            telemetry.addData("Arm Power: ", arm.getPower());
-            telemetry.addData("Arm Encoder: ", arm.getCurrentPosition());
+            telemetry.addData("pos", armPos);
+            telemetry.addData("target", target);
+            telemetry.addData("power", power);
             telemetry.addData("Limit State: ", limitState);
 
             telemetry.update();

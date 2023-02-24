@@ -172,6 +172,7 @@ public class RevisedTeleOp extends LinearOpMode{
             switch (switchVal) {
                 case 0:
 
+
                     leftLift.setTargetPosition((int) GROUNDJUNC);
                     rightLift.setTargetPosition((int) GROUNDJUNC);
 
