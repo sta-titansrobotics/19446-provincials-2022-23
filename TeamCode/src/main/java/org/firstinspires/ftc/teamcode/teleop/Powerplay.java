@@ -23,8 +23,6 @@ public class Powerplay extends LinearOpMode {
     public static double p = 0.13, i = 0, d = 0.0001;
     public static double f = 0.2;
 
-    public static int target = 0;
-
     final double tickstoDegree = 1.19;
 
     boolean pGA2Y = false;
@@ -33,7 +31,7 @@ public class Powerplay extends LinearOpMode {
 
     boolean scissorToggle = false;
 
-    double GROUNDJUNC = 0, LOWJUNC = 500, MIDJUNC = 100, HIGHJUNC = 1000;
+    double GROUNDJUNC = 1001,LOWJUNC = 3459, MIDJUNC = 5279, HIGHJUNC = 7100;
 
     boolean pPresetUP = false, pPresetDOWN= false;
     int currPreset = 0, switchVal = 0;
@@ -95,6 +93,7 @@ public class Powerplay extends LinearOpMode {
         waitForStart();
 
         // set initial positions
+        int target = 0;
         scissorPos = 0.5;
 
         if (isStopRequested()) return;
@@ -167,7 +166,6 @@ public class Powerplay extends LinearOpMode {
             double ff = Math.cos(Math.toRadians(target / tickstoDegree)) * f;
 
             double power = ff + pid;
-
 
             arm.setPower(power);
 
@@ -343,7 +341,6 @@ public class Powerplay extends LinearOpMode {
             telemetry.addData("target", target);
             telemetry.addData("power", power);
             telemetry.addData("Limit State: ", limitState);
-
             telemetry.update();
 
         }
