@@ -23,6 +23,7 @@ package org.firstinspires.ftc.teamcode.auton;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -46,15 +47,16 @@ public class Left extends LinearOpMode
     DcMotor leftLift, rightLift, arm;
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
+    PIDController controller;
+
+    public static double p = 0.13, i = 0, d = 0.0001;
+    public static double f = 0.2;
+
+    final double tickstoDegree = 1.19;
 
     public enum LiftState {
         LIFT_START,
         LIFT_MOVE,
-    }
-
-    public enum ArmState {
-        ARM_START,
-        ARM_MOVE,
     }
 
     int liftTargetPos = 0;
@@ -65,11 +67,9 @@ public class Left extends LinearOpMode
     double arm_power = 0;
     boolean arm_start = false;
 
-    int PICKUP = 0;
-    int DROP = 1000;
+    int target = 20;
 
     LiftState liftState = LiftState.LIFT_START;
-    ArmState armState = ArmState.ARM_START;
 
     static final double FEET_PER_METER = 3.28084;
 
@@ -141,15 +141,15 @@ public class Left extends LinearOpMode
 
         arm = hardwareMap.get(DcMotor.class, "arm");
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        arm.setTargetPosition(0);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        Servo servoScissor = hardwareMap.get(Servo.class, "servoScissor");
-        Servo verticalServo = hardwareMap.get(Servo.class, "servoScissorLift");
+        Servo servoScissor = hardwareMap.get(Servo.class, "scissor");
 
-        // Reverse right lift motor
-        rightLift.setDirection(DcMotorSimple.Direction.REVERSE);
+        // Reverse left lift motor
+        leftLift.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        controller = new PIDController(p, i, d);
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
@@ -341,32 +341,22 @@ public class Left extends LinearOpMode
                 default:
                     liftState = LiftState.LIFT_START;
             }
-        switch (armState) {
-            case ARM_START:
-                if (arm_start) {
-                    arm.setTargetPosition(armTargetPos);
-                    arm.setPower(lift_power);
 
-                    armState = ArmState.ARM_MOVE;
-                }
-                break;
-            case ARM_MOVE:
-                if (arm.getCurrentPosition() < arm.getTargetPosition() + 10 && arm.getCurrentPosition() > arm.getTargetPosition() - 10) {
-                    arm.setPower(0);
+            controller.setPID(p, i, d);
+            int armPos = arm.getCurrentPosition();
 
-                    arm_start = false;
-                    armState = ArmState.ARM_START;
-                }
-                break;
-            default:
-                armState = ArmState.ARM_START;
-        }
+            double pid = controller.calculate(armPos, target);
+
+            double ff = Math.cos(Math.toRadians(target / tickstoDegree)) * f;
+
+            double power = ff + pid;
+
+            arm.setPower(power);
 
             telemetry.addData("Left Lift Power: ", leftLift.getPower());
             telemetry.addData("Right Lift Power: ", rightLift.getPower());
             telemetry.addData("Left Lift Encoder: ", leftLift.getCurrentPosition());
             telemetry.addData("Right Lift Encoder: ", rightLift.getCurrentPosition());
-            telemetry.addData("Vertical Slider Position: ", verticalServo.getPosition());
             telemetry.addData("Scissor Intake Position: ", servoScissor.getPosition());
             telemetry.update();
         }
@@ -382,17 +372,6 @@ public class Left extends LinearOpMode
         liftTargetPos = ticks;
         lift_power = power;
         lift_start = true;
-    }
-
-    /**
-     * Moves arm to certain height
-     * @param power max power
-     * @param ticks target position
-     */
-    public void moveArm(double power, int ticks) {
-        armTargetPos = ticks;
-        arm_power = power;
-        arm_start = true;
     }
 
     void tagToTelemetry(AprilTagDetection detection)

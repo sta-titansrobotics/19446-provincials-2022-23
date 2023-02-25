@@ -12,6 +12,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 //blah blah blah
+// not expanding 0.59
+// expanded out 0.44
 
 @TeleOp
 public class Powerplay extends LinearOpMode {
@@ -63,7 +65,7 @@ public class Powerplay extends LinearOpMode {
         rightLift = hardwareMap.get(DcMotor.class, "rightLift");
 
         // Reverse right lift motor
-        rightLift.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftLift.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // lift motors
         leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -93,8 +95,8 @@ public class Powerplay extends LinearOpMode {
         waitForStart();
 
         // set initial positions
-        int target = 0;
-        scissorPos = 0.5;
+        int target = 20;
+        scissorPos = 0.59;
 
         if (isStopRequested()) return;
 
@@ -154,10 +156,8 @@ public class Powerplay extends LinearOpMode {
                 target -= 2;
             }
 
-            if (target < 0) {
-                target = 0;
-            }
-
+            // back negative power
+            // forward positive
             controller.setPID(p, i, d);
             int armPos = arm.getCurrentPosition();
 
@@ -170,25 +170,16 @@ public class Powerplay extends LinearOpMode {
             arm.setPower(power);
 
             // scissor intake
-            boolean ga2A = gamepad2.a;
-            if (ga2A && !pGA2A) {
-
-                if (scissorPos > 0) {
-                    scissorPos += 0.01;
-                }
-
-            }
-            pGA2A = ga2A;
-
             boolean ga2Y = gamepad2.y;
             if (ga2Y && !pGA2Y) {
-                if (scissorPos < 1) {
-                    scissorPos -= 0.01;
-                }
 
+                if (scissorPos == 0.59) {
+                    scissorPos = 0.44;
+                } else {
+                    scissorPos = 0.59;
+                }
             }
             pGA2Y = ga2Y;
-
 
             // limiters
             boolean ga2X = gamepad2.x;
@@ -339,6 +330,7 @@ public class Powerplay extends LinearOpMode {
             telemetry.addData("Scissor Intake Position: ", servoScissor.getPosition());
             telemetry.addData("pos", armPos);
             telemetry.addData("target", target);
+            telemetry.addData("Actual Arm Power: ", arm.getPower());
             telemetry.addData("power", power);
             telemetry.addData("Limit State: ", limitState);
             telemetry.update();

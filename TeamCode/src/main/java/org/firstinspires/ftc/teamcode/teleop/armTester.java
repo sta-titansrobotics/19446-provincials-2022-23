@@ -51,9 +51,7 @@ public class armTester extends OpMode {
 
         }
 
-        if (arm.getCurrentPosition() < 0) {
-            arm.setPower(0.5);
-        }
+
 
 
 
