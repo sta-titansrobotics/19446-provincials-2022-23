@@ -28,62 +28,6 @@ public class Left {
 
         Vector2d finalVectorPark = vectorPark;
 
-        /*
-        RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
-                // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(56, 56, Math.toRadians(180), Math.toRadians(180), 14.65)
-                .setDimensions(16, 17)
-                .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(-35, -61.8, Math.toRadians(90)))
-
-                                // preload
-                                .lineToSplineHeading(new Pose2d(-35, -5, Math.toRadians(90)))
-                                .lineToSplineHeading(new Pose2d(-35, -11.5, Math.toRadians(90)))
-                                .lineToSplineHeading(new Pose2d(-29.5, -6.5, Math.toRadians(47)))
-                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
-
-
-
-                                // cycle 1
-                                .lineToSplineHeading(new Pose2d(-60, -11.5, Math.toRadians(180)))
-                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
-                                .lineToSplineHeading(new Pose2d(-29.5, -6.5, Math.toRadians(47)))
-                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
-
-                                // cycle 2
-                                .lineToSplineHeading(new Pose2d(-60, -11.5, Math.toRadians(180)))
-                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
-                                .lineToSplineHeading(new Pose2d(-29.5, -6.5, Math.toRadians(47)))
-                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
-
-                                // cycle 3
-                                .lineToSplineHeading(new Pose2d(-60, -11.5, Math.toRadians(180)))
-                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
-                                .lineToSplineHeading(new Pose2d(-29.5, -6.5, Math.toRadians(47)))
-                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
-
-                                // cycle 4
-                                .lineToSplineHeading(new Pose2d(-60, -11.5, Math.toRadians(180)))
-                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
-                                .lineToSplineHeading(new Pose2d(-29.5, -6.5, Math.toRadians(47)))
-                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
-
-                                // cycle 4
-                                .lineToSplineHeading(new Pose2d(-60, -11.5, Math.toRadians(180)))
-                                .lineToSplineHeading(new Pose2d(-38.2, -11.5, Math.toRadians(180)))
-                                .lineToSplineHeading(new Pose2d(-29.5, -6.5, Math.toRadians(47)))
-
-                                // park
-                                .lineToSplineHeading(finalVectorPark)
-
-
-
-                                .build()
-                );
-
-
-         */
-
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(56, 56, Math.toRadians(180), Math.toRadians(180), 14.65)
@@ -93,23 +37,35 @@ public class Left {
 
                                 // preload
                                 .splineTo(new Vector2d(-35, -20), Math.toRadians(90))
-                                .splineTo(new Vector2d(-30, -11.2), Math.toRadians(58))
+                                .splineTo(new Vector2d(-29, -10.2), Math.toRadians(60))
                                 .waitSeconds(2)
 
                                 // cycle 1
                                 .setReversed(true)
-                                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(180))
-                                .splineTo(new Vector2d(-60, -11.2), Math.toRadians(180))
+                                .splineTo(new Vector2d(-34, -11.6), Math.toRadians(180))
+                                .splineTo(new Vector2d(-60, -11.6), Math.toRadians(180))
                                 .setReversed(false)
                                 .waitSeconds(2)
 
-                                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(0))
-                                .splineTo(new Vector2d(-30, -11.2), Math.toRadians(58))
+                                .splineTo(new Vector2d(-40, -11.6), Math.toRadians(0))
+                                .splineTo(new Vector2d(-30, -11.6), Math.toRadians(58))
                                 .waitSeconds(2)
+
+                                // cycle 2
+                                .setReversed(true)
+                                .splineTo(new Vector2d(-34, -11.6), Math.toRadians(180))
+                                .splineTo(new Vector2d(-60, -11.6), Math.toRadians(180))
+                                .setReversed(false)
+                                .waitSeconds(2)
+
+                                .splineTo(new Vector2d(-40, -11.6), Math.toRadians(0))
+                                .splineTo(new Vector2d(-30, -11.6), Math.toRadians(58))
+                                .waitSeconds(2)
+
 
                                 // parking
                                 .setReversed(true)
-                                .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
+                                .splineTo(new Vector2d(-39, -11.6), Math.toRadians(180))
                                 .setReversed(false)
 
                                 .lineToLinearHeading(new Pose2d(finalVectorPark, Math.toRadians(0)))

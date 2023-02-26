@@ -175,26 +175,36 @@ public class Left extends LinearOpMode
                  */
 
                 // preload
-
                 .splineTo(new Vector2d(-35, -20), Math.toRadians(90))
-                .splineTo(new Vector2d(-27, -8), Math.toRadians(65))
-
-                .waitSeconds(0.5)
+                .splineTo(new Vector2d(-29, -10.2), Math.toRadians(60))
+                .waitSeconds(2)
 
                 // cycle 1
                 .setReversed(true)
-                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(180))
-                .splineTo(new Vector2d(-60, -11.2), Math.toRadians(180))
+                .splineTo(new Vector2d(-34, -11.6), Math.toRadians(180))
+                .splineTo(new Vector2d(-60, -11.6), Math.toRadians(180))
                 .setReversed(false)
-                .waitSeconds(0.5)
+                .waitSeconds(2)
 
-                .splineTo(new Vector2d(-40, -11.2), Math.toRadians(0))
-                .splineTo(new Vector2d(-30, -11.2), Math.toRadians(58))
-                .waitSeconds(0.5)
+                .splineTo(new Vector2d(-40, -11.6), Math.toRadians(0))
+                .splineTo(new Vector2d(-30, -11.6), Math.toRadians(58))
+                .waitSeconds(2)
+
+                // cycle 2
+                .setReversed(true)
+                .splineTo(new Vector2d(-34, -11.6), Math.toRadians(180))
+                .splineTo(new Vector2d(-60, -11.6), Math.toRadians(180))
+                .setReversed(false)
+                .waitSeconds(2)
+
+                .splineTo(new Vector2d(-40, -11.6), Math.toRadians(0))
+                .splineTo(new Vector2d(-30, -11.6), Math.toRadians(58))
+                .waitSeconds(2)
+
 
                 // parking
                 .setReversed(true)
-                .splineTo(new Vector2d(-39, -11.5), Math.toRadians(180))
+                .splineTo(new Vector2d(-39, -11.6), Math.toRadians(180))
                 .setReversed(false)
 
                 .build();
