@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 //blah blah blah
-// not expanding 0.59
+// not expanding 0.63
 // expanded out 0.44
 // bottom cone intake lift 1855
 
@@ -34,7 +34,7 @@ public class Powerplay extends LinearOpMode {
 
     boolean scissorToggle = false;
 
-    double GROUNDJUNC = 1001,LOWJUNC = 3459, MIDJUNC = 5279, HIGHJUNC = 6574;
+    double GROUNDJUNC = 1001, LOWJUNC = 3459, MIDJUNC = 5279, HIGHJUNC = 6574;
 
     boolean pPresetUP = false, pPresetDOWN= false;
     int currPreset = 0, switchVal = 0;
@@ -72,9 +72,6 @@ public class Powerplay extends LinearOpMode {
         leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
         leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -97,7 +94,7 @@ public class Powerplay extends LinearOpMode {
 
         // set initial positions
         int target = 20;
-        scissorPos = 0.59;
+        scissorPos = 0.63;
 
         if (isStopRequested()) return;
 
@@ -118,10 +115,10 @@ public class Powerplay extends LinearOpMode {
             double frontRightPower = (y - x - rx) / denominator;
             double backRightPower = (y + x - rx) / denominator;
 
-            motorFL.setPower(frontLeftPower);
-            motorBL.setPower(backLeftPower);
-            motorFR.setPower(frontRightPower);
-            motorBR.setPower(backRightPower);
+            motorFL.setPower(frontLeftPower*0.9);
+            motorBL.setPower(backLeftPower*0.9);
+            motorFR.setPower(frontRightPower*0.9);
+            motorBR.setPower(backRightPower*0.9);
 
             // lift
 
@@ -174,10 +171,10 @@ public class Powerplay extends LinearOpMode {
             boolean ga2Y = gamepad2.y;
             if (ga2Y && !pGA2Y) {
 
-                if (scissorPos == 0.59) {
+                if (scissorPos == 0.63) {
                     scissorPos = 0.44;
                 } else {
-                    scissorPos = 0.59;
+                    scissorPos = 0.63;
                 }
             }
             pGA2Y = ga2Y;
