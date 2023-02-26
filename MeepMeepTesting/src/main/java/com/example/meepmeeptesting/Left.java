@@ -68,7 +68,7 @@ public class Left {
                                 .splineTo(new Vector2d(-39, -11.6), Math.toRadians(180))
                                 .setReversed(false)
 
-                                .lineToLinearHeading(new Pose2d(finalVectorPark, Math.toRadians(0)))
+                                .lineToSplineHeading(new Pose2d(-58.5, -12, Math.toRadians(0)))
 
 
 

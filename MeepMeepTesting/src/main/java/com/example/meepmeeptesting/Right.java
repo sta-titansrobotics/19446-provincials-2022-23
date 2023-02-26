@@ -31,78 +31,44 @@ public class Right {
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(56, 56, Math.toRadians(180), Math.toRadians(180), 14.65)
-                .setDimensions(16, 17)
+                .setDimensions(17.75, 17.875)
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(35, -61.8, Math.toRadians(90)))
 
                                 // preload
                                 .splineTo(new Vector2d(35, -20), Math.toRadians(90))
-                                .splineTo(new Vector2d(27, -8), Math.toRadians(115))
-                                .waitSeconds(0.5)
+                                .splineTo(new Vector2d(29, -10.2), Math.toRadians(120))
+                                .waitSeconds(2)
 
                                 // cycle 1
                                 .setReversed(true)
-                                .splineTo(new Vector2d(39, -11.5), Math.toRadians(0))
-                                .splineTo(new Vector2d(60, -11.5), Math.toRadians(0))
+                                .splineTo(new Vector2d(34, -11.6), Math.toRadians(0))
+                                .splineTo(new Vector2d(60, -11.6), Math.toRadians(0))
                                 .setReversed(false)
-                                .waitSeconds(0.5)
+                                .waitSeconds(2)
 
-                                .splineTo(new Vector2d(40, -11.5), Math.toRadians(180))
-                                .splineTo(new Vector2d(28, -8.5), Math.toRadians(120))
-                                .waitSeconds(0.5)
+                                .splineTo(new Vector2d(40, -11.6), Math.toRadians(180))
+                                .splineTo(new Vector2d(30, -11.6), Math.toRadians(122))
+                                .waitSeconds(2)
 
                                 // cycle 2
                                 .setReversed(true)
-                                .splineTo(new Vector2d(39, -11.5), Math.toRadians(0))
-                                .splineTo(new Vector2d(60, -11.5), Math.toRadians(0))
+                                .splineTo(new Vector2d(34, -11.6), Math.toRadians(0))
+                                .splineTo(new Vector2d(60, -11.6), Math.toRadians(0))
                                 .setReversed(false)
-                                .waitSeconds(0.5)
+                                .waitSeconds(2)
 
-                                .splineTo(new Vector2d(40, -11.5), Math.toRadians(180))
-                                .splineTo(new Vector2d(28, -8.5), Math.toRadians(120))
-                                .waitSeconds(0.5)
+                                .splineTo(new Vector2d(40, -11.6), Math.toRadians(180))
+                                .splineTo(new Vector2d(30, -11.6), Math.toRadians(122))
+                                .waitSeconds(2)
 
-                                // cycle 3
-                                .setReversed(true)
-                                .splineTo(new Vector2d(39, -11.5), Math.toRadians(0))
-                                .splineTo(new Vector2d(60, -11.5), Math.toRadians(0))
-                                .setReversed(false)
-                                .waitSeconds(0.5)
-
-                                .splineTo(new Vector2d(40, -11.5), Math.toRadians(180))
-                                .splineTo(new Vector2d(28, -8.5), Math.toRadians(120))
-                                .waitSeconds(0.5)
-
-                                // cycle 4
-                                .setReversed(true)
-                                .splineTo(new Vector2d(39, -11.5), Math.toRadians(0))
-                                .splineTo(new Vector2d(60, -11.5), Math.toRadians(0))
-                                .setReversed(false)
-                                .waitSeconds(0.5)
-
-                                .splineTo(new Vector2d(40, -11.5), Math.toRadians(180))
-                                .splineTo(new Vector2d(28, -8.5), Math.toRadians(120))
-                                .waitSeconds(0.5)
-
-                                // cycle 5
-                                .setReversed(true)
-                                .splineTo(new Vector2d(39, -11.5), Math.toRadians(0))
-                                .splineTo(new Vector2d(60, -11.5), Math.toRadians(0))
-                                .setReversed(false)
-                                .waitSeconds(0.5)
-
-                                .splineTo(new Vector2d(40, -11.5), Math.toRadians(180))
-                                .splineTo(new Vector2d(28, -8.5), Math.toRadians(120))
-                                .waitSeconds(0.5)
 
                                 // parking
                                 .setReversed(true)
-                                .splineTo(new Vector2d(39, -11.5), Math.toRadians(0))
+                                .splineTo(new Vector2d(39, -11.6), Math.toRadians(0))
                                 .setReversed(false)
 
-                                .lineToSplineHeading(finalVectorPark)
-
-
+                                .lineToSplineHeading(new Pose2d(58.5, -12, Math.toRadians(180)))
 
                                 .build()
                 );

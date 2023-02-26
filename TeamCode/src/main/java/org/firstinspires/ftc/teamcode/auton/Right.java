@@ -22,6 +22,8 @@
 package org.firstinspires.ftc.teamcode.auton;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -42,9 +44,32 @@ import java.util.ArrayList;
 public class Right extends LinearOpMode
 {
     //INTRODUCE VARIABLES HERE
-    DcMotor leftLift, rightLift;
+    DcMotor leftLift, rightLift, arm;
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
+    PIDController controller;
+
+    public static double p = 0.13, i = 0, d = 0.0001;
+    public static double f = 0.2;
+
+    final double tickstoDegree = 1.19;
+
+    public enum LiftState {
+        LIFT_START,
+        LIFT_MOVE,
+    }
+
+    int liftTargetPos = 0;
+    double lift_power = 0;
+    boolean lift_start = false;
+
+    int armTargetPos = 0;
+    double arm_power = 0;
+    boolean arm_start = false;
+
+    int target = 20;
+
+    LiftState liftState = LiftState.LIFT_START;
 
     static final double FEET_PER_METER = 3.28084;
 
@@ -104,42 +129,83 @@ public class Right extends LinearOpMode
         leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        // initialize position
+        leftLift.setTargetPosition(0);
+        rightLift.setTargetPosition(0);
+
         leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        Servo servoScissor = hardwareMap.get(Servo.class, "servoScissor");
-        Servo verticalServo = hardwareMap.get(Servo.class, "servoScissorLift");
+        leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        // Reverse right lift motor
-        rightLift.setDirection(DcMotorSimple.Direction.REVERSE);
+        arm = hardwareMap.get(DcMotor.class, "arm");
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        Servo servoScissor = hardwareMap.get(Servo.class, "scissor");
+
+        // Reverse left lift motor
+        leftLift.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        controller = new PIDController(p, i, d);
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        Pose2d startPose = new Pose2d(35.5, -62.3, Math.toRadians(90));
+        Pose2d startPose = new Pose2d(35, -62, Math.toRadians(90));
 
         drive.setPoseEstimate(startPose);
 
         TrajectorySequence common = drive.trajectorySequenceBuilder(startPose)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.67))
-                .UNSTABLE_addTemporalMarkerOffset(1, () -> verticalServo.setPosition(0))
-                .UNSTABLE_addTemporalMarkerOffset(2, () -> moveLift(0.8, 0, 500))
-                .waitSeconds(3) // change to 1
 
-                .forward(56.8)
-                .waitSeconds(1)
-                .back(6.5)
-                .waitSeconds(1)
-                .turn(Math.toRadians(45))
+                /* Preload
 
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> moveLift(0.8, 0.1, 3150))
-                .waitSeconds(2) // change to 0.5
-                .forward(7.85)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.5))
-                .waitSeconds(0.2)
-                .back(7)
-                .turn(Math.toRadians(45))
+                1.Start with cone in the back, move arm to front/dropping position while moving forward, after small delay extend the lift to high junction
+                2. Drop the cone
+
+                 */
+
+                /* First cycle
+
+                 1. Once cone is dropped, move arm to back/pickup position and start to lower lift while robot moving backwards
+                 3. Pick up cone
+                 4. This time lift goes up first, very small delay --> start moving backward towards junction
+                 5. After small delay, arm starts to swing back to front/dropping position
+                 */
+
+                // preload
+                .splineTo(new Vector2d(35, -20), Math.toRadians(90))
+                .splineTo(new Vector2d(29, -10.2), Math.toRadians(120))
+                .waitSeconds(2)
+
+                // cycle 1
+                .setReversed(true)
+                .splineTo(new Vector2d(34, -11.6), Math.toRadians(0))
+                .splineTo(new Vector2d(60, -11.6), Math.toRadians(0))
+                .setReversed(false)
+                .waitSeconds(2)
+
+                .splineTo(new Vector2d(40, -11.6), Math.toRadians(180))
+                .splineTo(new Vector2d(30, -11.6), Math.toRadians(122))
+                .waitSeconds(2)
+
+                // cycle 2
+                .setReversed(true)
+                .splineTo(new Vector2d(34, -11.6), Math.toRadians(0))
+                .splineTo(new Vector2d(60, -11.6), Math.toRadians(0))
+                .setReversed(false)
+                .waitSeconds(2)
+
+                .splineTo(new Vector2d(40, -11.6), Math.toRadians(180))
+                .splineTo(new Vector2d(30, -11.6), Math.toRadians(122))
+                .waitSeconds(2)
+
+
+                // parking
+                .setReversed(true)
+                .splineTo(new Vector2d(39, -11.6), Math.toRadians(0))
+                .setReversed(false)
 
                 .build();
 
@@ -158,7 +224,7 @@ public class Right extends LinearOpMode
         TrajectorySequence rightTraj = drive.trajectorySequenceBuilder(common.end())
 
                 // park
-                .lineToSplineHeading(new Pose2d(57.5, -12, Math.toRadians(180)))
+                .lineToSplineHeading(new Pose2d(58.5, -12, Math.toRadians(180)))
                 .build();
 
         /*
@@ -259,57 +325,63 @@ public class Right extends LinearOpMode
         }
 
         while (opModeIsActive()) {
+
+            switch (liftState) {
+                case LIFT_START:
+                    if (lift_start) {
+                        leftLift.setTargetPosition(liftTargetPos);
+                        rightLift.setTargetPosition(liftTargetPos);
+
+                        leftLift.setPower(lift_power);
+                        rightLift.setPower(lift_power);
+
+                        liftState = LiftState.LIFT_MOVE;
+                    }
+                    break;
+                case LIFT_MOVE:
+                    if (leftLift.getCurrentPosition() < leftLift.getTargetPosition() + 10 && leftLift.getCurrentPosition() > leftLift.getTargetPosition() - 10) {
+                        leftLift.setPower(0);
+                        rightLift.setPower(0);
+
+                        lift_start = false;
+                        liftState = LiftState.LIFT_START;
+                    }
+                    break;
+
+                default:
+                    liftState = LiftState.LIFT_START;
+            }
+
+            controller.setPID(p, i, d);
+            int armPos = arm.getCurrentPosition();
+
+            double pid = controller.calculate(armPos, target);
+
+            double ff = Math.cos(Math.toRadians(target / tickstoDegree)) * f;
+
+            double power = ff + pid;
+
+            arm.setPower(power);
+
             telemetry.addData("Left Lift Power: ", leftLift.getPower());
             telemetry.addData("Right Lift Power: ", rightLift.getPower());
             telemetry.addData("Left Lift Encoder: ", leftLift.getCurrentPosition());
             telemetry.addData("Right Lift Encoder: ", rightLift.getCurrentPosition());
-            telemetry.addData("Vertical Slider Position: ", verticalServo.getPosition());
             telemetry.addData("Scissor Intake Position: ", servoScissor.getPosition());
             telemetry.update();
         }
 
     }
 
-    public void moveLift(double power, double endPower, int ticks) {
-
-        motorPower(0);
-
-        leftLift.setTargetPosition(ticks);
-        rightLift.setTargetPosition(ticks);
-
-        leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        motorPower(power);
-
-        while(leftLift.isBusy()) {
-            // wait for lift to reach desired height
-        }
-
-        motorPower(0);
-
-        leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        motorPower(endPower);
-    }
-
     /**
-     * Set power of both lift motors
-     * @param power setPower
+     * Moves lift to certain height
+     * @param power max power
+     * @param ticks target position
      */
-    public void motorPower(double power) {
-        leftLift.setPower(power);
-        rightLift.setPower(power);
-    }
-
-    /**
-     * Change mode of cascading lift
-     * @param mode setMode
-     */
-    public void setLiftMode(DcMotor.RunMode mode) {
-        leftLift.setMode(mode);
-        rightLift.setMode(mode);
+    public void moveLift(double power, int ticks) {
+        liftTargetPos = ticks;
+        lift_power = power;
+        lift_start = true;
     }
 
     void tagToTelemetry(AprilTagDetection detection)

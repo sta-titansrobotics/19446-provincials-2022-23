@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.util.Range;
 //blah blah blah
 // not expanding 0.59
 // expanded out 0.44
+// bottom cone intake lift 1855
 
 @TeleOp
 public class Powerplay extends LinearOpMode {
@@ -33,7 +34,7 @@ public class Powerplay extends LinearOpMode {
 
     boolean scissorToggle = false;
 
-    double GROUNDJUNC = 1001,LOWJUNC = 3459, MIDJUNC = 5279, HIGHJUNC = 7100;
+    double GROUNDJUNC = 1001,LOWJUNC = 3459, MIDJUNC = 5279, HIGHJUNC = 6574;
 
     boolean pPresetUP = false, pPresetDOWN= false;
     int currPreset = 0, switchVal = 0;
