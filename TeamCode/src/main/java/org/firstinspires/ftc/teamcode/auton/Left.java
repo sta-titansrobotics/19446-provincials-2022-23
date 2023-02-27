@@ -157,26 +157,60 @@ public class Left extends LinearOpMode
 
         drive.setPoseEstimate(startPose);
 
-        TrajectorySequence common = drive.trajectorySequenceBuilder(startPose)
-
-                /* Preload
-
-                1.Start with cone in the back, move arm to front/dropping position while moving forward, after small delay extend the lift to high junction
-                2. Drop the cone
-
-                 */
-
-                /* First cycle
-
-                 1. Once cone is dropped, move arm to back/pickup position and start to lower lift while robot moving backwards
-                 3. Pick up cone
-                 4. This time lift goes up first, very small delay --> start moving backward towards junction
-                 5. After small delay, arm starts to swing back to front/dropping position
-                 */
+        TrajectorySequence leftTraj = drive.trajectorySequenceBuilder(startPose)
 
                 // preload
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.44))
+                .UNSTABLE_addTemporalMarkerOffset(0.1, () -> target = 110)
+                .waitSeconds(0.5)
+
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> moveLift(1, 6100))
                 .splineTo(new Vector2d(-35, -20), Math.toRadians(90))
                 .splineTo(new Vector2d(-29, -10.2), Math.toRadians(60))
+                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> servoScissor.setPosition(0.63))
+                .waitSeconds(2)
+
+                // cycle 1
+                .setReversed(true)
+                .splineTo(new Vector2d(-34, -11.6), Math.toRadians(180))
+                .splineTo(new Vector2d(-60, -11.6), Math.toRadians(180))
+                .setReversed(false)
+                .waitSeconds(2)
+
+                .splineTo(new Vector2d(-40, -11.6), Math.toRadians(0))
+                .splineTo(new Vector2d(-30, -11.6), Math.toRadians(58))
+                .waitSeconds(2)
+
+                // cycle 2
+                .setReversed(true)
+                .splineTo(new Vector2d(-34, -11.6), Math.toRadians(180))
+                .splineTo(new Vector2d(-60, -11.6), Math.toRadians(180))
+                .setReversed(false)
+                .waitSeconds(2)
+
+                .splineTo(new Vector2d(-40, -11.6), Math.toRadians(0))
+                .splineTo(new Vector2d(-30, -11.6), Math.toRadians(58))
+                .waitSeconds(2)
+
+                // parking
+                .setReversed(true)
+                .splineTo(new Vector2d(-39, -11.6), Math.toRadians(180))
+                .setReversed(false)
+
+                .lineToSplineHeading(new Pose2d(-57.5, -12, Math.toRadians(0)))
+                .build();
+
+        TrajectorySequence middleTraj = drive.trajectorySequenceBuilder(startPose)
+
+                // preload
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.44))
+                .UNSTABLE_addTemporalMarkerOffset(0.1, () -> target = 110)
+                .waitSeconds(0.5)
+
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> moveLift(1, 6100))
+                .splineTo(new Vector2d(-35, -20), Math.toRadians(90))
+                .splineTo(new Vector2d(-29, -10.2), Math.toRadians(60))
+                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> servoScissor.setPosition(0.63))
                 .waitSeconds(2)
 
                 // cycle 1
@@ -206,22 +240,49 @@ public class Left extends LinearOpMode
                 .setReversed(true)
                 .splineTo(new Vector2d(-39, -11.6), Math.toRadians(180))
                 .setReversed(false)
-
-                .build();
-
-
-        TrajectorySequence leftTraj = drive.trajectorySequenceBuilder(common.end())
-
-                .lineToSplineHeading(new Pose2d(-57.5, -12, Math.toRadians(0)))
-                .build();
-
-        TrajectorySequence middleTraj = drive.trajectorySequenceBuilder(common.end())
-
                 // park
                 .lineToSplineHeading(new Pose2d(-35, -12, Math.toRadians(0)))
                 .build();
 
-        TrajectorySequence rightTraj = drive.trajectorySequenceBuilder(common.end())
+        TrajectorySequence rightTraj = drive.trajectorySequenceBuilder(startPose)
+
+                // preload
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> servoScissor.setPosition(0.44))
+                .UNSTABLE_addTemporalMarkerOffset(0.1, () -> target = 110)
+                .waitSeconds(0.5)
+
+                .UNSTABLE_addTemporalMarkerOffset(0, () -> moveLift(1, 6100))
+                .splineTo(new Vector2d(-35, -20), Math.toRadians(90))
+                .splineTo(new Vector2d(-29, -10.2), Math.toRadians(60))
+                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> servoScissor.setPosition(0.63))
+                .waitSeconds(2)
+
+                // cycle 1
+                .setReversed(true)
+                .splineTo(new Vector2d(-34, -11.6), Math.toRadians(180))
+                .splineTo(new Vector2d(-60, -11.6), Math.toRadians(180))
+                .setReversed(false)
+                .waitSeconds(2)
+
+                .splineTo(new Vector2d(-40, -11.6), Math.toRadians(0))
+                .splineTo(new Vector2d(-30, -11.6), Math.toRadians(58))
+                .waitSeconds(2)
+
+                // cycle 2
+                .setReversed(true)
+                .splineTo(new Vector2d(-34, -11.6), Math.toRadians(180))
+                .splineTo(new Vector2d(-60, -11.6), Math.toRadians(180))
+                .setReversed(false)
+                .waitSeconds(2)
+
+                .splineTo(new Vector2d(-40, -11.6), Math.toRadians(0))
+                .splineTo(new Vector2d(-30, -11.6), Math.toRadians(58))
+                .waitSeconds(2)
+
+                // parking
+                .setReversed(true)
+                .splineTo(new Vector2d(-39, -11.6), Math.toRadians(180))
+                .setReversed(false)
 
                 // park
                 .lineToSplineHeading(new Pose2d(-11.5, -12, Math.toRadians(0)))
@@ -307,20 +368,19 @@ public class Left extends LinearOpMode
         }
 
         // autonomous code here
-        drive.followTrajectorySequence(common);
 
         if (tagOfInterest == null || tagOfInterest.id == LEFT) {
             // left trajectory
-            drive.followTrajectorySequence(leftTraj);
+            drive.followTrajectorySequenceAsync(leftTraj);
 
 
         } else if (tagOfInterest.id == MIDDLE) {
             // middle trajectory
-            drive.followTrajectorySequence(middleTraj);
+            drive.followTrajectorySequenceAsync(middleTraj);
 
         } else {
             // right trajectory
-            drive.followTrajectorySequence(rightTraj);
+            drive.followTrajectorySequenceAsync(rightTraj);
 
         }
 
@@ -362,6 +422,9 @@ public class Left extends LinearOpMode
             double power = ff + pid;
 
             arm.setPower(power);
+
+            // takes care of all movement
+            drive.update();
 
             telemetry.addData("Left Lift Power: ", leftLift.getPower());
             telemetry.addData("Right Lift Power: ", rightLift.getPower());
